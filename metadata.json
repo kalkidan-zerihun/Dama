@@ -1,0 +1,6 @@
+{
+  "name": "Damma",
+  "description": "An elegant retro-arcade styled checkers variant game with VS CPU and Local 2-Player modes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

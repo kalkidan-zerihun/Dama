@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Damma</title>
+    <!-- Orbitron for retro-arcade headings and Rajdhani for modern high-tech stats -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ======================== -->
+    <!-- 🎬 SPLASH SCREEN         -->
+    <!-- ======================== -->
+    <div id="splash-screen" class="screen active">
+        <div class="splash-container">
+            <h1 class="splash-title">AXUMIT STUDIOS</h1>
+            <div class="logo-placeholder">
+                <svg viewBox="0 0 100 100" class="neon-crown">
+                    <polygon points="20,80 30,30 50,55 70,30 80,80" fill="none" stroke="#00f3ff" stroke-width="4" stroke-linejoin="round" />
+                    <circle cx="30" cy="22" r="4" fill="#ff007f" />
+                    <circle cx="50" cy="47" r="4" fill="#ff007f" />
+                    <circle cx="70" cy="22" r="4" fill="#ff007f" />
+                    <line x1="15" y1="80" x2="85" y2="80" stroke="#ff007f" stroke-width="4" stroke-linecap="round" />
+                </svg>
+            </div>
+            <div class="splash-loader">
+                <div class="loader-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== -->
+    <!-- 🏠 MAIN MENU             -->
+    <!-- ======================== -->
+    <div id="main-menu" class="screen">
+        <div class="menu-container">
+            <div class="game-header">
+                <h1 class="game-title neon-text-pink">DAMMA</h1>
+                <p class="game-subtitle neon-text-blue">Play with me</p>
+            </div>
+
+            <div class="menu-illustration">
+                <!-- Decorative SVG checker pieces -->
+                <svg viewBox="0 0 200 100" class="neon-decor">
+                    <circle cx="60" cy="50" r="30" fill="none" stroke="#00f3ff" stroke-width="3" />
+                    <circle cx="60" cy="50" r="20" fill="none" stroke="#00f3ff" stroke-width="1.5" stroke-dasharray="4,4" />
+                    <circle cx="140" cy="50" r="30" fill="none" stroke="#ff007f" stroke-width="3" />
+                    <polygon points="140,38 145,48 155,48 147,54 150,64 140,58 130,64 133,54 125,48 135,48" fill="#ff007f" />
+                    <path d="M 20 50 L 180 50" stroke="rgba(255,255,255,0.1)" stroke-width="2" />
+                </svg>
+            </div>
+
+            <div class="controls-panel">
+                <div class="setting-group">
+                    <span class="setting-label">GAME MODE</span>
+                    <div class="toggle-buttons" id="mode-selector">
+                        <button class="toggle-btn active" data-mode="vs-cpu">VS CPU</button>
+                        <button class="toggle-btn" data-mode="pass-play">2 PLAYERS</button>
+                    </div>
+                </div>
+
+                <div class="setting-group" id="difficulty-setting">
+                    <span class="setting-label">CPU DIFFICULTY</span>
+                    <div class="toggle-buttons" id="difficulty-selector">
+                        <button class="toggle-btn" data-level="easy">EASY</button>
+                        <button class="toggle-btn active" data-level="medium">MEDIUM</button>
+                        <button class="toggle-btn" data-level="hard">HARD</button>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <span class="setting-label">SOUND EFFECTS</span>
+                    <button id="sound-toggle-btn" class="menu-action-btn">SOUND: ON</button>
+                </div>
+            </div>
+
+            <div class="action-panel">
+                <button id="start-game-btn" class="main-action-btn pulse-glow">START GAME</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== -->
+    <!-- 🎮 GAMEPLAY SCREEN       -->
+    <!-- ======================== -->
+    <div id="gameplay-screen" class="screen">
+        <div class="game-hud">
+            <button id="hud-back-btn" class="hud-btn" aria-label="Back to menu">
+                <svg viewBox="0 0 24 24" class="hud-icon">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="#00f3ff"/>
+                </svg>
+            </button>
+            
+            <div class="hud-turn-container">
+                <span id="turn-indicator-text" class="turn-text neon-text-blue">PLAYER'S TURN</span>
+            </div>
+
+            <button id="hud-reset-btn" class="hud-btn" aria-label="Reset game">
+                <svg viewBox="0 0 24 24" class="hud-icon">
+                    <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" fill="#ff007f"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="scores-bar">
+            <div class="score-card player1">
+                <div class="score-indicator neon-bg-blue"></div>
+                <div class="score-info">
+                    <span class="score-label">BLUE (YOU)</span>
+                    <span id="p1-score" class="score-value neon-text-blue">12</span>
+                </div>
+            </div>
+            <div class="score-card player2">
+                <div class="score-info">
+                    <span id="p2-label" class="score-label">PINK (CPU)</span>
+                    <span id="p2-score" class="score-value neon-text-pink">12</span>
+                </div>
+                <div class="score-indicator neon-bg-pink"></div>
+            </div>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="game-canvas"></canvas>
+        </div>
+
+        <div class="game-instruction-bar">
+            <span id="instruction-text">Tap a Blue piece to select it.</span>
+        </div>
+    </div>
+
+    <!-- ======================== -->
+    <!-- 💀 GAME OVER SCREEN     -->
+    <!-- ======================== -->
+    <div id="game-over-screen" class="screen">
+        <div class="gameover-container">
+            <h1 class="gameover-title neon-text-red">GAME OVER</h1>
+            
+            <div class="result-box">
+                <h2 id="result-message" class="neon-text-blue">BLUE WINS!</h2>
+                <div class="stats-table">
+                    <div class="stats-row">
+                        <span>Game Duration</span>
+                        <span id="stat-time">02:14</span>
+                    </div>
+                    <div class="stats-row">
+                        <span>Total Moves</span>
+                        <span id="stat-moves">24</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="gameover-actions">
+                <button id="restart-game-btn" class="main-action-btn pulse-glow-red">REPLAY</button>
+                <button id="menu-game-btn" class="menu-action-btn">MAIN MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
