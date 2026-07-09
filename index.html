@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Damma</title>
-    <!-- Orbitron for retro-arcade headings and Rajdhani for modern high-tech stats -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Cinzel for premium traditional headings and Lora/Inter for elegant warm typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,11 +18,11 @@
             <h1 class="splash-title">AXUMIT STUDIOS</h1>
             <div class="logo-placeholder">
                 <svg viewBox="0 0 100 100" class="neon-crown">
-                    <polygon points="20,80 30,30 50,55 70,30 80,80" fill="none" stroke="#00f3ff" stroke-width="4" stroke-linejoin="round" />
-                    <circle cx="30" cy="22" r="4" fill="#ff007f" />
-                    <circle cx="50" cy="47" r="4" fill="#ff007f" />
-                    <circle cx="70" cy="22" r="4" fill="#ff007f" />
-                    <line x1="15" y1="80" x2="85" y2="80" stroke="#ff007f" stroke-width="4" stroke-linecap="round" />
+                    <polygon points="20,80 30,30 50,55 70,30 80,80" fill="none" stroke="#ffd700" stroke-width="4" stroke-linejoin="round" />
+                    <circle cx="30" cy="22" r="4" fill="#d35400" />
+                    <circle cx="50" cy="47" r="4" fill="#d35400" />
+                    <circle cx="70" cy="22" r="4" fill="#d35400" />
+                    <line x1="15" y1="80" x2="85" y2="80" stroke="#d35400" stroke-width="4" stroke-linecap="round" />
                 </svg>
             </div>
             <div class="splash-loader">
@@ -35,6 +35,11 @@
     <!-- 🏠 MAIN MENU             -->
     <!-- ======================== -->
     <div id="main-menu" class="screen">
+        <button id="sound-toggle-btn" class="sound-toggle-top" aria-label="Toggle Sound" title="Toggle Sound">
+            <svg viewBox="0 0 24 24">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" fill="currentColor"/>
+            </svg>
+        </button>
         <div class="menu-container">
             <div class="game-header">
                 <h1 class="game-title neon-text-pink">DAMMA</h1>
@@ -44,10 +49,10 @@
             <div class="menu-illustration">
                 <!-- Decorative SVG checker pieces -->
                 <svg viewBox="0 0 200 100" class="neon-decor">
-                    <circle cx="60" cy="50" r="30" fill="none" stroke="#00f3ff" stroke-width="3" />
-                    <circle cx="60" cy="50" r="20" fill="none" stroke="#00f3ff" stroke-width="1.5" stroke-dasharray="4,4" />
-                    <circle cx="140" cy="50" r="30" fill="none" stroke="#ff007f" stroke-width="3" />
-                    <polygon points="140,38 145,48 155,48 147,54 150,64 140,58 130,64 133,54 125,48 135,48" fill="#ff007f" />
+                    <circle cx="60" cy="50" r="30" fill="none" stroke="#00b4d8" stroke-width="3" />
+                    <circle cx="60" cy="50" r="20" fill="none" stroke="#3ce7f3" stroke-width="1.5" stroke-dasharray="4,4" />
+                    <circle cx="140" cy="50" r="30" fill="none" stroke="#e63946" stroke-width="3" />
+                    <polygon points="140,38 145,48 155,48 147,54 150,64 140,58 130,64 133,54 125,48 135,48" fill="#ffd700" />
                     <path d="M 20 50 L 180 50" stroke="rgba(255,255,255,0.1)" stroke-width="2" />
                 </svg>
             </div>
@@ -70,24 +75,39 @@
                     </div>
                 </div>
 
-                <div class="setting-group">
-                    <span class="setting-label">FORCE CAPTURE RULE</span>
-                    <div class="toggle-buttons" id="force-capture-selector">
-                        <button class="toggle-btn active" data-value="on">ON (MANDATORY)</button>
-                        <button class="toggle-btn" data-value="off">OFF (OPTIONAL)</button>
+                <!-- 🎨 PIECE COLOR CUSTOMIZATION SECTION -->
+                <div class="settings-section">
+                    <div class="settings-section-header">
+                        <span class="settings-section-title">PIECE COLOR</span>
+                        <div class="settings-section-divider"></div>
+                    </div>
+                    <div class="setting-group">
+                        <span class="setting-label">PLAYER 1 (YOU)</span>
+                        <div class="color-palette" id="p1-color-palette"></div>
+                    </div>
+
+                    <div class="setting-group">
+                        <span class="setting-label">PLAYER 2</span>
+                        <div class="color-palette" id="p2-color-palette"></div>
                     </div>
                 </div>
 
-                <div class="setting-group">
-                    <span class="setting-label">SOUND EFFECTS</span>
-                    <button id="sound-toggle-btn" class="menu-action-btn">SOUND: ON</button>
-                </div>
-            </div>
+                <div id="color-error-message" class="color-error-msg" style="display: none;"></div>
 
-            <div class="action-panel" style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-                <button id="continue-game-btn" class="main-action-btn pulse-glow" style="display: none; background-color: var(--neon-green); box-shadow: 0 0 20px rgba(57, 255, 20, 0.4); color: #050505;">CONTINUE GAME</button>
+                <!-- ⚙️ NEW GAME RULES SECTION -->
+                <div class="setting-group">
+                    <span class="setting-label">GAME RULES</span>
+                    <div class="toggle-row">
+                        <span class="toggle-text">FORCE CAPTURE RULE</span>
+                        <label class="switch">
+                            <input type="checkbox" id="force-capture-toggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <span class="setting-subtext">When enabled, captures are mandatory according to official Ethiopian Damma rules.</span>
+                </div>
+
                 <button id="start-game-btn" class="main-action-btn pulse-glow">START GAME</button>
-                <a href="description.html" target="_blank" class="menu-action-btn" style="text-decoration: none; display: flex; align-items: center; justify-content: center; text-transform: uppercase;">GAME MANUAL & SPEC</a>
             </div>
         </div>
     </div>
@@ -99,7 +119,7 @@
         <div class="game-hud">
             <button id="hud-back-btn" class="hud-btn" aria-label="Back to menu">
                 <svg viewBox="0 0 24 24" class="hud-icon">
-                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="#00f3ff"/>
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="#ffd700"/>
                 </svg>
             </button>
             
@@ -107,70 +127,44 @@
                 <span id="turn-indicator-text" class="turn-text neon-text-blue">PLAYER'S TURN</span>
             </div>
 
-            <div class="hud-right-actions" style="display: flex; gap: 10px;">
-                <button id="hud-undo-btn" class="hud-btn" aria-label="Undo move" title="Undo Move">
+            <div class="hud-right-actions">
+                <button id="hud-undo-btn" class="hud-btn" aria-label="Undo Last Turn" title="Undo Last Turn">
                     <svg viewBox="0 0 24 24" class="hud-icon">
-                        <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z" fill="#39ff14"/>
+                        <path d="M12.5 8c-2.65 0-5.05 1-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.2 8 12.5 8z" fill="#ffd700"/>
                     </svg>
                 </button>
-                <button id="hud-log-btn" class="hud-btn mobile-only" aria-label="Toggle Move Log" title="Move Log">
+                <button id="hud-reset-btn" class="hud-btn" aria-label="Reset game" title="Reset game">
                     <svg viewBox="0 0 24 24" class="hud-icon">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="none" stroke="#00f3ff" stroke-width="2" stroke-linejoin="round"/>
-                        <polyline points="14 2 14 8 20 8" fill="none" stroke="#00f3ff" stroke-width="2" stroke-linejoin="round"/>
-                        <line x1="16" y1="13" x2="8" y2="13" stroke="#00f3ff" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="16" y1="17" x2="8" y2="17" stroke="#00f3ff" stroke-width="2" stroke-linecap="round"/>
-                        <polyline points="10 9 9 9 8 9" stroke="#00f3ff" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                </button>
-                <button id="hud-reset-btn" class="hud-btn" aria-label="Reset game">
-                    <svg viewBox="0 0 24 24" class="hud-icon">
-                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" fill="#ff007f"/>
+                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" fill="#e63946"/>
                     </svg>
                 </button>
             </div>
         </div>
 
-        <div class="game-main-area">
-            <div class="game-board-panel">
-                <div class="scores-bar">
-                    <div class="score-card player1">
-                        <div class="score-indicator neon-bg-blue"></div>
-                        <div class="score-info">
-                            <span class="score-label">BLUE (YOU)</span>
-                            <span id="p1-score" class="score-value neon-text-blue">12</span>
-                        </div>
-                    </div>
-                    <div class="score-card player2">
-                        <div class="score-info">
-                            <span id="p2-label" class="score-label">PINK (CPU)</span>
-                            <span id="p2-score" class="score-value neon-text-pink">12</span>
-                        </div>
-                        <div class="score-indicator neon-bg-pink"></div>
-                    </div>
-                </div>
-
-                <div class="canvas-container">
-                    <canvas id="game-canvas"></canvas>
+        <div class="scores-bar">
+            <div class="score-card player1">
+                <div class="score-indicator neon-bg-blue"></div>
+                <div class="score-info">
+                    <span class="score-label">GOLD (YOU)</span>
+                    <span id="p1-score" class="score-value neon-text-blue">12</span>
                 </div>
             </div>
-
-            <div class="game-side-panel">
-                <div class="history-card">
-                    <div class="history-header">
-                        <span>MOVE LOG</span>
-                        <button id="close-log-btn" class="close-log-btn mobile-only" aria-label="Close Move Log">✕</button>
-                    </div>
-                    <div id="move-history-list" class="history-list">
-                        <div class="history-placeholder">No moves made yet</div>
-                    </div>
+            <div class="score-card player2">
+                <div class="score-info">
+                    <span id="p2-label" class="score-label">GREEN (CPU)</span>
+                    <span id="p2-score" class="score-value neon-text-pink">12</span>
                 </div>
+                <div class="score-indicator neon-bg-pink"></div>
             </div>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="game-canvas"></canvas>
         </div>
 
         <div class="game-instruction-bar">
-            <span id="instruction-text">Tap a Blue piece to select it.</span>
+            <span id="instruction-text">Tap a Gold piece to select it.</span>
         </div>
-        <div id="log-backdrop" class="log-backdrop mobile-only"></div>
     </div>
 
     <!-- ======================== -->
@@ -181,7 +175,7 @@
             <h1 class="gameover-title neon-text-red">GAME OVER</h1>
             
             <div class="result-box">
-                <h2 id="result-message" class="neon-text-blue">BLUE WINS!</h2>
+                <h2 id="result-message" class="neon-text-blue">GOLD WINS!</h2>
                 <div class="stats-table">
                     <div class="stats-row">
                         <span>Game Duration</span>
@@ -201,6 +195,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
