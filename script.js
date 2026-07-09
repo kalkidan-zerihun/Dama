@@ -488,119 +488,163 @@ const gameStateManager = {
 // ========================
 // 🎬 SPLASH SCREEN TIMEOUT
 // ========================
-window.addEventListener('DOMContentLoaded', () => {
-    // Initialize color palettes and HUD styling on startup
-    renderPalettes();
-    updateDynamicUI();
-
-    // Initialize and listen to Force Capture Rule toggle
-    const forceToggle = document.getElementById('force-capture-toggle');
-    if (forceToggle) {
-        forceToggle.checked = isForceCaptureEnabled();
-        forceToggle.addEventListener('change', (e) => {
-            SoundSystem.play('click');
-            setForceCaptureEnabled(e.target.checked);
-        });
-    }
-
-    // Check if sound toggle was clicked
-    document.getElementById('sound-toggle-btn').addEventListener('click', () => {
-        SoundSystem.play('click');
-        gameStateManager.toggleSound();
-    });
-
-    // Setup mode selector listeners
-    document.getElementById('mode-selector').addEventListener('click', (e) => {
-        if (e.target.classList.contains('toggle-btn')) {
-            SoundSystem.play('click');
-            document.querySelectorAll('#mode-selector .toggle-btn').forEach(btn => btn.classList.remove('active'));
-            e.target.classList.add('active');
-            gameStateManager.gameMode = e.target.getAttribute('data-mode');
-            
-            // Show/Hide difficulty selectors based on vs CPU
-            const diffSetting = document.getElementById('difficulty-setting');
-            if (gameStateManager.gameMode === 'vs-cpu') {
-                diffSetting.style.display = 'flex';
-            } else {
-                diffSetting.style.display = 'none';
-            }
-            
-            // Refresh P2 label text to CPU or Player 2
-            updateDynamicUI();
-        }
-    });
-
-    // Setup difficulty selector listeners
-    document.getElementById('difficulty-selector').addEventListener('click', (e) => {
-        if (e.target.classList.contains('toggle-btn')) {
-            SoundSystem.play('click');
-            document.querySelectorAll('#difficulty-selector .toggle-btn').forEach(btn => btn.classList.remove('active'));
-            e.target.classList.add('active');
-            gameStateManager.difficulty = e.target.getAttribute('data-level');
-            
-            // Refresh P2 label text to include difficulty
-            updateDynamicUI();
-        }
-    });
-
-    // Start Game Button listener
-    document.getElementById('start-game-btn').addEventListener('click', () => {
-        SoundSystem.play('click');
-        localStorage.removeItem('damma-saved-game');
-        gameStateManager.showScreen('gameplay-screen');
-        // Initialize gameplay logic via engine function
-        gameStateManager.activeGameInstance = createGame();
-        // Force the gameplay HUD colors to match selection
+function initializeGameApp() {
+    try {
+        // Initialize color palettes and HUD styling on startup
+        renderPalettes();
         updateDynamicUI();
-    });
 
-    // Back from gameplay HUD
-    document.getElementById('hud-back-btn').addEventListener('click', () => {
-        SoundSystem.play('click');
-        if (gameStateManager.activeGameInstance) {
-            gameStateManager.activeGameInstance.terminate();
+        // Initialize and listen to Force Capture Rule toggle
+        const forceToggle = document.getElementById('force-capture-toggle');
+        if (forceToggle) {
+            forceToggle.checked = isForceCaptureEnabled();
+            forceToggle.addEventListener('change', (e) => {
+                SoundSystem.play('click');
+                setForceCaptureEnabled(e.target.checked);
+            });
         }
-        gameStateManager.showScreen('main-menu');
-    });
 
-    // Reset gameplay HUD
-    document.getElementById('hud-reset-btn').addEventListener('click', () => {
-        SoundSystem.play('click');
-        if (gameStateManager.activeGameInstance) {
-            gameStateManager.activeGameInstance.restart();
+        // Check if sound toggle was clicked
+        const soundToggle = document.getElementById('sound-toggle-btn');
+        if (soundToggle) {
+            soundToggle.addEventListener('click', () => {
+                SoundSystem.play('click');
+                gameStateManager.toggleSound();
+            });
         }
-    });
 
-    // Undo gameplay HUD
-    const undoBtnEl = document.getElementById('hud-undo-btn');
-    if (undoBtnEl) {
-        undoBtnEl.addEventListener('click', () => {
-            if (gameStateManager.activeGameInstance) {
-                gameStateManager.activeGameInstance.undo();
+        // Setup mode selector listeners
+        const modeSelector = document.getElementById('mode-selector');
+        if (modeSelector) {
+            modeSelector.addEventListener('click', (e) => {
+                if (e.target.classList.contains('toggle-btn')) {
+                    SoundSystem.play('click');
+                    document.querySelectorAll('#mode-selector .toggle-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    gameStateManager.gameMode = e.target.getAttribute('data-mode');
+                    
+                    // Show/Hide difficulty selectors based on vs CPU
+                    const diffSetting = document.getElementById('difficulty-setting');
+                    if (diffSetting) {
+                        if (gameStateManager.gameMode === 'vs-cpu') {
+                            diffSetting.style.display = 'flex';
+                        } else {
+                            diffSetting.style.display = 'none';
+                        }
+                    }
+                    
+                    // Refresh P2 label text to CPU or Player 2
+                    updateDynamicUI();
+                }
+            });
+        }
+
+        // Setup difficulty selector listeners
+        const diffSelector = document.getElementById('difficulty-selector');
+        if (diffSelector) {
+            diffSelector.addEventListener('click', (e) => {
+                if (e.target.classList.contains('toggle-btn')) {
+                    SoundSystem.play('click');
+                    document.querySelectorAll('#difficulty-selector .toggle-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    gameStateManager.difficulty = e.target.getAttribute('data-level');
+                    
+                    // Refresh P2 label text to include difficulty
+                    updateDynamicUI();
+                }
+            });
+        }
+
+        // Start Game Button listener
+        const startGameBtn = document.getElementById('start-game-btn');
+        if (startGameBtn) {
+            startGameBtn.addEventListener('click', () => {
+                SoundSystem.play('click');
+                localStorage.removeItem('damma-saved-game');
+                gameStateManager.showScreen('gameplay-screen');
+                // Initialize gameplay logic via engine function
+                gameStateManager.activeGameInstance = createGame();
+                // Force the gameplay HUD colors to match selection
+                updateDynamicUI();
+            });
+        }
+
+        // Back from gameplay HUD
+        const hudBackBtn = document.getElementById('hud-back-btn');
+        if (hudBackBtn) {
+            hudBackBtn.addEventListener('click', () => {
+                SoundSystem.play('click');
+                if (gameStateManager.activeGameInstance) {
+                    gameStateManager.activeGameInstance.terminate();
+                }
+                gameStateManager.showScreen('main-menu');
+            });
+        }
+
+        // Reset gameplay HUD
+        const hudResetBtn = document.getElementById('hud-reset-btn');
+        if (hudResetBtn) {
+            hudResetBtn.addEventListener('click', () => {
+                SoundSystem.play('click');
+                if (gameStateManager.activeGameInstance) {
+                    gameStateManager.activeGameInstance.restart();
+                }
+            });
+        }
+
+        // Undo gameplay HUD
+        const undoBtnEl = document.getElementById('hud-undo-btn');
+        if (undoBtnEl) {
+            undoBtnEl.addEventListener('click', () => {
+                if (gameStateManager.activeGameInstance) {
+                    gameStateManager.activeGameInstance.undo();
+                }
+            });
+        }
+
+        // Restart from Game Over Screen
+        const restartGameBtn = document.getElementById('restart-game-btn');
+        if (restartGameBtn) {
+            restartGameBtn.addEventListener('click', () => {
+                SoundSystem.play('click');
+                localStorage.removeItem('damma-saved-game');
+                gameStateManager.showScreen('gameplay-screen');
+                gameStateManager.activeGameInstance = createGame();
+                updateDynamicUI();
+            });
+        }
+
+        // Return to Menu from Game Over Screen
+        const menuGameBtn = document.getElementById('menu-game-btn');
+        if (menuGameBtn) {
+            menuGameBtn.addEventListener('click', () => {
+                SoundSystem.play('click');
+                gameStateManager.showScreen('main-menu');
+            });
+        }
+    } catch (e) {
+        console.error("Error during game application initialization:", e);
+    } finally {
+        // ALWAYS ensure splash screen is transitioned and dismissed
+        setTimeout(() => {
+            try {
+                gameStateManager.showScreen('main-menu');
+            } catch (err) {
+                console.error("Failed to dismiss splash screen:", err);
+                const splash = document.getElementById('splash-screen');
+                if (splash) splash.classList.remove('active');
+                const menu = document.getElementById('main-menu');
+                if (menu) menu.classList.add('active');
             }
-        });
+        }, 2500);
     }
+}
 
-    // Restart from Game Over Screen
-    document.getElementById('restart-game-btn').addEventListener('click', () => {
-        SoundSystem.play('click');
-        localStorage.removeItem('damma-saved-game');
-        gameStateManager.showScreen('gameplay-screen');
-        gameStateManager.activeGameInstance = createGame();
-        updateDynamicUI();
-    });
-
-    // Return to Menu from Game Over Screen
-    document.getElementById('menu-game-btn').addEventListener('click', () => {
-        SoundSystem.play('click');
-        gameStateManager.showScreen('main-menu');
-    });
-
-    // Transition Splash Screen to Main Menu after 2.5 seconds
-    setTimeout(() => {
-        gameStateManager.showScreen('main-menu');
-    }, 2500);
-});
+if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initializeGameApp);
+} else {
+    initializeGameApp();
+}
 
 
 // ==========================================================================
