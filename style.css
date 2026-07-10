@@ -99,19 +99,14 @@ body, html {
     filter: drop-shadow(0 2px 8px rgba(255, 215, 0, 0.4));
 }
 
-.logo-placeholder {
-    width: 120px;
-    height: 120px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.3));
-}
-
-.neon-crown {
-    width: 100%;
-    height: 100%;
-    animation: pulseLogo 2s infinite ease-in-out;
+.axumite-emblem {
+    width: 140px;
+    height: auto;
+    max-width: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.6)) sepia(0.2) brightness(1.1) contrast(1.1);
+    animation: axumiteEntrance 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards, axumiteFloat 3.5s ease-in-out 1.5s infinite;
+    opacity: 0;
 }
 
 .splash-loader {
@@ -131,9 +126,26 @@ body, html {
     transform-origin: left;
 }
 
-@keyframes pulseLogo {
-    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.2)); }
-    50% { transform: scale(1.08); filter: drop-shadow(0 0 25px rgba(230, 57, 70, 0.4)); }
+@keyframes axumiteEntrance {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes axumiteFloat {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+        filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.6)) sepia(0.2) brightness(1.1) contrast(1.1);
+    }
+    50% {
+        transform: translateY(-4px) scale(1.02);
+        filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.35)) drop-shadow(0 0 30px rgba(255, 215, 0, 0.8)) sepia(0.2) brightness(1.2) contrast(1.15);
+    }
 }
 
 @keyframes loadingBar {
