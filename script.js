@@ -2142,7 +2142,7 @@ function createGame() {
     // EXPORT CORE ACTIONS FOR THE STATE MANAGER
     return {
         restart() {
-            initBoard();
+            initBoard(true);
         },
         terminate() {
             terminate();
