@@ -350,15 +350,19 @@ function updateDynamicUI() {
     // Update labels
     const p1Label = document.querySelector('.score-card.player1 .score-label');
     if (p1Label) {
-        p1Label.textContent = `${p1Col.name.toUpperCase()} (YOU)`;
+        if (gameStateManager.gameMode === 'vs-cpu') {
+            p1Label.textContent = `PLAYER (YOU)`;
+        } else {
+            p1Label.textContent = `PLAYER 1 (YOU)`;
+        }
     }
     
     const p2Label = document.getElementById('p2-label');
     if (p2Label) {
         if (gameStateManager.gameMode === 'vs-cpu') {
-            p2Label.textContent = `${p2Col.name.toUpperCase()} (CPU - ${gameStateManager.difficulty.toUpperCase()})`;
+            p2Label.textContent = `CPU (${gameStateManager.difficulty.toUpperCase()})`;
         } else {
-            p2Label.textContent = `${p2Col.name.toUpperCase()} (PLAYER 2)`;
+            p2Label.textContent = `PLAYER 2`;
         }
     }
     
@@ -401,13 +405,14 @@ function updateDynamicUI() {
         const instructionText = document.getElementById('instruction-text');
         
         if (currentTurn === 1) {
-            turnText.textContent = `${p1Col.name.toUpperCase()}'S TURN`;
+            const p1Name = gameStateManager.gameMode === 'vs-cpu' ? 'PLAYER' : 'PLAYER 1';
+            turnText.textContent = `${p1Name}'S TURN`;
             turnText.style.color = p1Col.glowColor;
             turnText.style.textShadow = `0 0 6px ${p1Col.glowColor}`;
             if (instructionText) {
                 instructionText.textContent = isMultiJump
                     ? "Multi-jump available! Tap the destination to capture."
-                    : (hasMandatory ? "⚠️ CAPTURE MANDATORY! Tap glowing piece." : `Select a ${p1Col.name} piece to move.`);
+                    : (hasMandatory ? "⚠️ CAPTURE MANDATORY! Tap glowing piece." : `Select your piece to move.`);
             }
         } else {
             if (gameStateManager.gameMode === 'vs-cpu') {
@@ -418,13 +423,13 @@ function updateDynamicUI() {
                     instructionText.textContent = "CPU is planning its move...";
                 }
             } else {
-                turnText.textContent = `${p2Col.name.toUpperCase()}'S TURN`;
+                turnText.textContent = `PLAYER 2'S TURN`;
                 turnText.style.color = p2Col.glowColor;
                 turnText.style.textShadow = `0 0 6px ${p2Col.glowColor}`;
                 if (instructionText) {
                     instructionText.textContent = isMultiJump
                         ? "Multi-jump available! Tap the destination to capture."
-                        : (hasMandatory ? "⚠️ CAPTURE MANDATORY! Tap glowing piece." : `Select a ${p2Col.name} piece to move.`);
+                        : (hasMandatory ? "⚠️ CAPTURE MANDATORY! Tap glowing piece." : `Select your piece to move.`);
                 }
             }
         }
@@ -513,7 +518,26 @@ function initializeGameApp() {
             });
         }
 
-        // Setup mode selector listeners
+        // Move Log UI listeners
+    const mobileLogBtn = document.getElementById('mobile-log-btn');
+    const closeLogBtn = document.getElementById('close-log-btn');
+    const moveLogPanel = document.getElementById('move-log-panel');
+    
+    if (mobileLogBtn && moveLogPanel) {
+        mobileLogBtn.addEventListener('click', () => {
+            SoundSystem.play('click');
+            moveLogPanel.classList.add('open');
+        });
+    }
+    
+    if (closeLogBtn && moveLogPanel) {
+        closeLogBtn.addEventListener('click', () => {
+            SoundSystem.play('click');
+            moveLogPanel.classList.remove('open');
+        });
+    }
+
+    // Setup mode selector listeners
         const modeSelector = document.getElementById('mode-selector');
         if (modeSelector) {
             modeSelector.addEventListener('click', (e) => {
@@ -677,6 +701,27 @@ function createGame() {
     // Undo History Snapshot State
     let cpuTimeoutId = null;
     let historyStack = [];
+    let moveLog = []; // NEW
+
+    function renderMoveLog() {
+        const container = document.getElementById('move-log-content');
+        if (!container) return;
+        container.innerHTML = '';
+        
+        moveLog.forEach((log, index) => {
+            const isHighlight = index === moveLog.length - 1;
+            const pColorClass = log.player === 1 ? 'neon-bg-blue' : 'neon-bg-pink';
+            const logEl = document.createElement('div');
+            logEl.className = `log-item ${isHighlight ? 'highlight' : ''}`;
+            logEl.innerHTML = `
+                <span class="log-num">${log.moveNum}.</span>
+                <span class="log-player-color ${pColorClass}"></span>
+                <span class="log-detail">${log.desc}</span>
+            `;
+            container.appendChild(logEl);
+        });
+        container.scrollTop = container.scrollHeight;
+    }
 
     function saveSnapshot() {
         if (gameStateManager.gameMode !== 'vs-cpu') return;
@@ -689,7 +734,8 @@ function createGame() {
             selectedPiece: selectedPiece ? { ...selectedPiece } : null,
             multiJumpPiece: multiJumpPiece ? { ...multiJumpPiece } : null,
             validMoves: validMoves.map(m => ({ ...m })),
-            mandatoryCaptures: mandatoryCaptures.map(m => ({ ...m }))
+            mandatoryCaptures: mandatoryCaptures.map(m => ({ ...m })),
+            moveLog: [...moveLog]
         });
     }
 
@@ -703,6 +749,7 @@ function createGame() {
         multiJumpPiece = snapshot.multiJumpPiece ? { ...snapshot.multiJumpPiece } : null;
         validMoves = snapshot.validMoves.map(m => ({ ...m }));
         mandatoryCaptures = snapshot.mandatoryCaptures.map(m => ({ ...m }));
+        moveLog = snapshot.moveLog ? [...snapshot.moveLog] : [];
         
         if (cpuTimeoutId) {
             clearTimeout(cpuTimeoutId);
@@ -711,6 +758,7 @@ function createGame() {
         isCpuThinking = false;
         
         updateHUD();
+        renderMoveLog();
         saveGameToLocalStorage();
     }
 
@@ -757,6 +805,7 @@ function createGame() {
                 totalMoves,
                 startTime,
                 historyStack,
+                moveLog: [...moveLog], // NEW
                 multiJumpPiece: multiJumpPiece ? { r: multiJumpPiece.r, c: multiJumpPiece.c } : null
             }));
         } catch (e) {
@@ -787,7 +836,9 @@ function createGame() {
                         cpuTimeoutId = null;
                     }
                     
+                    moveLog = data.moveLog || [];
                     updateHUD();
+                    renderMoveLog();
                     scanMandatoryCaptures();
                     return;
                 } catch (e) {
@@ -823,6 +874,7 @@ function createGame() {
         p1Count = 12;
         p2Count = 12;
         totalMoves = 0;
+        moveLog = [];
         startTime = Date.now();
         isCpuThinking = false;
         
@@ -831,8 +883,10 @@ function createGame() {
             cpuTimeoutId = null;
         }
 
+        moveLog = []; // NEW
         historyStack = [];
         updateHUD();
+        renderMoveLog();
         scanMandatoryCaptures();
         saveSnapshot();
         localStorage.removeItem('damma-saved-game');
@@ -1324,6 +1378,14 @@ function createGame() {
     // ⚔️ MOVE EXECUTION AND TURN SWITCHING
     // ==========================================
     function executeMove(fromR, fromC, toR, toC, isJump, capturedPiece) {
+        // Record move to log
+        const colLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+        const rowNums = ['8', '7', '6', '5', '4', '3', '2', '1'];
+        const fromStr = colLetters[fromC] + rowNums[fromR];
+        const toStr = colLetters[toC] + rowNums[toR];
+        let actionStr = isJump ? 'x' : '→';
+        const isKing = Math.abs(board[fromR][fromC]) === 2;
+        
         const pieceType = board[fromR][fromC];
         board[toR][toC] = pieceType;
         board[fromR][fromC] = 0;
@@ -1353,6 +1415,15 @@ function createGame() {
             promoted = true;
             SoundSystem.play('king');
         }
+
+        // Finalize log entry and add to log
+        const logEntry = {
+            player: turn,
+            moveNum: Math.floor(totalMoves / 2) + 1,
+            desc: `${isKing ? '♔ ' : ''}${fromStr} ${actionStr} ${toStr}${promoted ? ' = ♔' : ''}`
+        };
+        moveLog.push(logEntry);
+        renderMoveLog();
 
         // Deselect current
         selectedPiece = null;
@@ -1404,11 +1475,11 @@ function createGame() {
     // Win condition checker
     function checkGameOver() {
         if (p1Count === 0) {
-            endGame(-1, "Pink captures all pieces!");
+            endGame(-1, "Player 2 captures all pieces!");
             return true;
         }
         if (p2Count === 0) {
-            endGame(1, "Blue captures all pieces!");
+            endGame(1, "Player 1 captures all pieces!");
             return true;
         }
 
@@ -1448,11 +1519,12 @@ function createGame() {
         localStorage.removeItem('damma-saved-game');
         if (winner === 1) {
             SoundSystem.play('win');
-            document.getElementById('result-message').textContent = "GOLD WINS!";
+            const p1Name = gameStateManager.gameMode === 'vs-cpu' ? 'PLAYER' : 'PLAYER 1';
+            document.getElementById('result-message').textContent = `${p1Name} WINS!`;
             document.getElementById('result-message').className = "neon-text-blue";
         } else {
             SoundSystem.play('lose');
-            const oppName = gameStateManager.gameMode === 'vs-cpu' ? 'CPU' : 'GREEN';
+            const oppName = gameStateManager.gameMode === 'vs-cpu' ? 'CPU' : 'PLAYER 2';
             document.getElementById('result-message').textContent = `${oppName} WINS!`;
             document.getElementById('result-message').className = "neon-text-pink";
         }
@@ -2059,17 +2131,21 @@ function createGame() {
     initBoard();
     render();
 
+        function terminate() {
+        isTerminated = true;
+        window.removeEventListener('resize', resize);
+        canvas.removeEventListener('mousedown', onMouseDown);
+        canvas.removeEventListener('touchstart', onTouchStart);
+        if (animationId) cancelAnimationFrame(animationId);
+    }
+
     // EXPORT CORE ACTIONS FOR THE STATE MANAGER
     return {
         restart() {
             initBoard();
         },
         terminate() {
-            isTerminated = true;
-            window.removeEventListener('resize', resize);
-            canvas.removeEventListener('mousedown', onMouseDown);
-            canvas.removeEventListener('touchstart', onTouchStart);
-            if (animationId) cancelAnimationFrame(animationId);
+            terminate();
         },
         getTurn() {
             return turn;
