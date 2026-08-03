@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Damma (ደማ) - Game Description Document</title>
+    <!-- Premium Classical Serifs and Sans-serifs for academic submission -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1a1a1a;
+            --accent-color: #8b1e0f; /* Ethiopian Crimson / Oxblood */
+            --gold-accent: #b89345;  /* Traditional gold */
+            --text-main: #2b2b2b;
+            --text-muted: #555555;
+            --bg-light: #f7f7f9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: var(--text-main);
+            line-height: 1.5;
+            background-color: #eaebef;
+        }
+
+        /* SCREEN PRESENTATION STYLES */
+        @media screen {
+            body {
+                padding: 40px 10px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .a4-page {
+                background: #ffffff;
+                width: 210mm;
+                min-height: 297mm;
+                padding: 20mm;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+                border-radius: 4px;
+                position: relative;
+            }
+
+            .action-bar {
+                display: flex;
+                gap: 15px;
+                width: 100%;
+                max-width: 210mm;
+                justify-content: space-between;
+                align-items: center;
+                background: #ffffff;
+                padding: 15px 25px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            }
+
+            .btn {
+                font-family: 'Inter', sans-serif;
+                font-weight: 600;
+                font-size: 0.9rem;
+                padding: 10px 20px;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                text-decoration: none;
+            }
+
+            .btn-primary {
+                background-color: var(--accent-color);
+                color: #ffffff;
+                border: none;
+            }
+
+            .btn-primary:hover {
+                background-color: #6d150a;
+                transform: translateY(-1px);
+            }
+
+            .btn-secondary {
+                background-color: transparent;
+                color: var(--primary-color);
+                border: 2px solid var(--primary-color);
+            }
+
+            .btn-secondary:hover {
+                background-color: rgba(0,0,0,0.05);
+            }
+
+            .logo-text {
+                font-family: 'Cinzel', serif;
+                font-weight: 700;
+                color: var(--accent-color);
+                letter-spacing: 1px;
+            }
+        }
+
+        /* PRINT PRESENTATION STYLES (Strict A4 Formatting) */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 15mm 15mm 15mm 15mm;
+            }
+
+            body {
+                background: #ffffff;
+                color: #000000;
+                font-size: 10pt;
+                line-height: 1.4;
+            }
+
+            .a4-page {
+                width: 100%;
+                padding: 0;
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        /* DOCUMENT CONTENT STYLING */
+        .doc-header {
+            text-align: center;
+            border-bottom: 2px double var(--gold-accent);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .doc-title-ethiopian {
+            font-family: 'Cinzel', serif;
+            font-size: 24pt;
+            font-weight: 800;
+            color: var(--accent-color);
+            letter-spacing: 2px;
+            text-shadow: 0.5px 0.5px 0 #000;
+        }
+
+        .doc-subtitle {
+            font-size: 11pt;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .doc-meta {
+            font-size: 8.5pt;
+            color: var(--text-muted);
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            font-weight: 500;
+        }
+
+        .doc-section {
+            margin-bottom: 18px;
+        }
+
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 12pt;
+            color: var(--accent-color);
+            border-bottom: 1.5px solid var(--gold-accent);
+            padding-bottom: 3px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .section-title-num {
+            font-size: 10pt;
+            color: var(--text-muted);
+        }
+
+        .doc-text {
+            font-size: 9.5pt;
+            color: var(--text-main);
+            text-align: justify;
+            margin-bottom: 8px;
+        }
+
+        .doc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .doc-list {
+            padding-left: 20px;
+            margin-bottom: 8px;
+        }
+
+        .doc-list-item {
+            font-size: 9.5pt;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .doc-list-item strong {
+            color: var(--primary-color);
+        }
+
+        /* Game Board Representation Diagram */
+        .board-diagram-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--bg-light);
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 5px 0;
+        }
+
+        .diagram-title {
+            font-size: 8pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--accent-color);
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+
+        .board-diagram {
+            display: grid;
+            grid-template-columns: repeat(8, 16px);
+            grid-template-rows: repeat(8, 16px);
+            border: 2px solid #333;
+            width: fit-content;
+        }
+
+        .diagram-sq {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .diag-dark {
+            background-color: #5d5d5d;
+        }
+
+        .diag-light {
+            background-color: #eaeaea;
+        }
+
+        .diag-piece-p1 {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #00bcd4; /* Player Blue */
+            box-shadow: inset 1px 1px 2px rgba(255,255,255,0.4);
+        }
+
+        .diag-piece-p2 {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #e91e63; /* Player Pink */
+            box-shadow: inset 1px 1px 2px rgba(255,255,255,0.4);
+        }
+
+        /* Rules Table */
+        .rules-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+            font-size: 9pt;
+        }
+
+        .rules-table th {
+            background-color: var(--accent-color);
+            color: #ffffff;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            padding: 6px 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        .rules-table td {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        .rules-table tr:nth-child(even) td {
+            background-color: var(--bg-light);
+        }
+
+        .highlight-box {
+            background: #fffcf4;
+            border-left: 3px solid var(--gold-accent);
+            padding: 8px 12px;
+            margin: 10px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .highlight-title {
+            font-size: 9pt;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .doc-footer {
+            margin-top: 25px;
+            border-top: 1px solid #ddd;
+            padding-top: 8px;
+            text-align: center;
+            font-size: 8pt;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        /* Animation for spinner */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SCREEN-ONLY ACTION BAR -->
+    <div class="action-bar no-print">
+        <span class="logo-text">DAMMA SPECIFICATION</span>
+        <div style="display: flex; gap: 10px;">
+            <a href="index.html" class="btn btn-secondary">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Back to Game
+            </a>
+            <button class="btn btn-secondary" onclick="window.print()">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                Print
+            </button>
+            <button id="download-pdf-btn" class="btn btn-primary" onclick="downloadPDF()">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN A4 PAGE CONTAINER -->
+    <div class="a4-page">
+        
+        <!-- DOCUMENT HEADER -->
+        <header class="doc-header">
+            <h1 class="doc-title-ethiopian">DAMMA &bull; ደማ</h1>
+            <div class="doc-subtitle">Official Game Specification & Rules Guide</div>
+            <div class="doc-meta">
+                <span><strong>Origin:</strong> Ethiopia (Horn of Africa)</span>
+                <span><strong>Category:</strong> Abstract Strategy</span>
+                <span><strong>Submission Standard:</strong> A4 Format</span>
+            </div>
+        </header>
+
+        <!-- SECTION 1: CULTURAL BACKDROP -->
+        <section class="doc-section">
+            <h2 class="section-title">
+                <span>1. Historical & Cultural Context</span>
+                <span class="section-title-num">[01]</span>
+            </h2>
+            <p class="doc-text">
+                <strong>Damma (ደማ)</strong> is a traditional mathematical abstract board game deeply rooted in the cultural heritage of the Horn of Africa, particularly Ethiopia. Played for centuries on custom-carved wooden blocks, stones, or directly in the dirt of rural village gathering sites, Damma fosters tactical computation, spatial reasoning, and communal bonding. It belongs to the broad draughts/checkers family of games but features highly dynamic, aggressive jump sequences and the prestigious "Damma" (Flying King) promotion, requiring extreme foresight and positional dominance.
+            </p>
+        </section>
+
+        <!-- SECTION 2: EQUIPMENT AND INITIAL LAYOUT -->
+        <div class="doc-grid">
+            <section class="doc-section" style="margin-bottom:0;">
+                <h2 class="section-title">
+                    <span>2. Board Representation</span>
+                    <span class="section-title-num">[02]</span>
+                </h2>
+                <p class="doc-text">
+                    Damma is played on an <strong>8&times;8 grid</strong> of alternating light and dark squares (64 squares total). Play is restricted exclusively to the 32 dark squares.
+                </p>
+                <ul class="doc-list">
+                    <li class="doc-list-item"><strong>Pieces:</strong> Each player begins with exactly 12 pieces placed on the dark squares of the three closest ranks (rows) to them.</li>
+                    <li class="doc-list-item"><strong>Setup:</strong> Ranks 1–3 for Player 1 (Blue) and Ranks 6–8 for Player 2 (Pink), leaving the center two ranks open.</li>
+                </ul>
+            </section>
+
+            <div class="board-diagram-container">
+                <div class="diagram-title">Initial Setup Matrix</div>
+                <div class="board-diagram">
+                    <!-- Row 8 (P2 pieces) -->
+                    <div class="diagram-sq diag-light"></div><div class="diagram-sq diag-dark"><div class="diag-piece-p2"></div></div>
+                    <div class="diagram-sq diag-light"></div><div class="diagram-sq diag-dark"><div class="diag-piece-p2"></div></div>
+                    <div class="diagram-sq diag-light"></div><div class="diagram-sq diag-dark"><div class="diag-piece-p2"></div></div>
+                    <div class="diagram-sq diag-light"></div><div class="diagram-sq diag-dark"><div class="diag-piece-p2"></div></div>
+                    <!-- Row 7 (P2 pieces) -->
+                    <div class="diagram-sq diag-dark"><div class="diag-piece-p2"></div></div><div class="diagram-sq diag-light"></div>
+                    <div class="diagram-sq diag-dark"><div class="diag-piece-p2"></div></div><div class="diagram-sq diag-light"></div>
+                    <div class="diagram-sq diag-dark"><div class="diag-piece-p2"></div></div><div class="diagram-sq diag-light"></div>
+                    <div class="diagram-sq diag-dark"><div class="diag-piece-p2"></div></div><div class="diagram-sq diag-light"></div>
+                    <!-- Row 6 (P2 pieces) -->
+                    <div class="diagram-sq diag-light"></div><div class="diagram-sq diag-dark"><div class="diag-piece-p2"></div></div>
+                    <div class="diagram-sq diag-light"></div><div class="diagram-sq diag-dark"><div class="diag-piece-p2"></div></div>
+                    <div class="diagram-sq diag-light"></div><div class="diagram-sq diag-dark"><div class="diag-piece-p2"></div></div>
+                    <div class="diagram-sq diag-light"></div><div class="diagram-sq diag-dark"><div class="diag-piece-p2"></div></div>
+                    <!-- Row 5 (Empty) -->
+                    <div class="diagram-sq diag-dark"></div><div class="diagram-sq diag-light"></div>
+                    <div class="diagram-sq diag-dark"></div><div class="diagram-sq diag-light"></div>
+                    <div class="diagram-sq diag-dark"></div><div class="diagram-sq diag-light"></div>
+                    <div class="diagram-sq diag-dark"></div><div class="diagram-sq diag-light"></div>
+                    <!-- Row 4 (Empty) -->
+                    <div class="diagram-sq diag-light"></div><div class="diagram-sq diag-dark"></div>
+                    <div class="diagram-sq diag-light"></div><div class="diagram-sq diag-dark"></div>
+                    <div class="diagram-sq diag-light"></div><div class="diagram-sq diag-dark"></div>
+                    <div class="diagram-sq diag-light"></div><div class="diagram-sq diag-dark"></div>
+                    <!-- Row 3 (P1 pieces) -->
+                    <div class="diagram-sq diag-dark"><div class="diag-piece-p1"></div></div><div class="diagram-sq diag-light"></div>
+                    <div class="diagram-sq diag-dark"><div class="diag-piece-p1"></div></div><div class="diagram-sq diag-light"></div>
+                    <div class="diagram-sq diag-dark"><div class="diag-piece-p1"></div></div><div class="diagram-sq diag-light"></div>
+                    <div class="diagram-sq diag-dark"><div class="diag-piece-p1"></div></div><div class="diagram-sq diag-light"></div>
+                    <!-- Row 2 (P1 pieces) -->
+                    <div class="diagram-sq diag-light"></div><div class="diagram-sq diag-dark"><div class="diag-piece-p1"></div></div>
+                    <div class="diagram-sq diag-light"></div><div class="diagram-sq diag-dark"><div class="diag-piece-p1"></div></div>
+                    <div class="diagram-sq diag-light"></div><div class="diagram-sq diag-dark"><div class="diag-piece-p1"></div></div>
+                    <div class="diagram-sq diag-light"></div><div class="diagram-sq diag-dark"><div class="diag-piece-p1"></div></div>
+                    <!-- Row 1 (P1 pieces) -->
+                    <div class="diagram-sq diag-dark"><div class="diag-piece-p1"></div></div><div class="diagram-sq diag-light"></div>
+                    <div class="diagram-sq diag-dark"><div class="diag-piece-p1"></div></div><div class="diagram-sq diag-light"></div>
+                    <div class="diagram-sq diag-dark"><div class="diag-piece-p1"></div></div><div class="diagram-sq diag-light"></div>
+                    <div class="diagram-sq diag-dark"><div class="diag-piece-p1"></div></div><div class="diagram-sq diag-light"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: SYSTEMATIC RULES OF PLAY -->
+        <section class="doc-section">
+            <h2 class="section-title">
+                <span>3. Core Rules & Movement Mechanics</span>
+                <span class="section-title-num">[03]</span>
+            </h2>
+            <table class="rules-table">
+                <thead>
+                    <tr>
+                        <th style="width: 25%">Piece Type</th>
+                        <th style="width: 35%">Standard Movement</th>
+                        <th style="width: 40%">Capturing Capability</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Ordinary Piece</strong></td>
+                        <td>Moves diagonally forward exactly <strong>one square</strong> into an adjacent dark square. Never moves backward.</td>
+                        <td>Jumps over an adjacent opponent piece into an empty diagonal square immediately behind it. Can jump in all 4 diagonal directions.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>The Damma</strong><br><em>(Flying King)</em></td>
+                        <td>Promoted when reaching the far edge. Moves <strong>unlimited diagonal squares</strong> (slides) in any direction.</td>
+                        <td><strong>Long-Range Jump:</strong> Slides from a distance, jumps over a single opponent piece, and can land on any empty dark square beyond it.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- SECTION 4: CAPTURE RULES AND MANDATES -->
+        <section class="doc-section">
+            <h2 class="section-title">
+                <span>4. Mandatory Capture & Multi-Jump Chains</span>
+                <span class="section-title-num">[04]</span>
+            </h2>
+            <p class="doc-text">
+                The strategic intensity of Damma resides in its strict capture protocols. This ensures highly interactive board setups and complex sacrifices:
+            </p>
+            <ul class="doc-list">
+                <li class="doc-list-item"><strong>Forced Capture:</strong> If a player has a valid jump on their turn, they <strong>must</strong> execute it. Moving another piece is illegal.</li>
+                <li class="doc-list-item"><strong>Multi-Jump Sequences:</strong> After completing a diagonal capture, if the active piece has another valid jump from its new landing square, it must perform the next jump in a continuous sequence within the same turn.</li>
+                <li class="doc-list-item"><strong>The Multi-Jump Turn Lock:</strong> The turn is locked to the current piece. The player cannot switch to another piece or end the turn until all sequential captures are fully executed.</li>
+            </ul>
+            <div class="highlight-box">
+                <div class="highlight-title">👑 Rule of the Flying King (Damma) Promotion</div>
+                <p class="doc-text" style="margin-bottom:0; font-size:9.2pt;">
+                    When an ordinary piece reaches the opponent's back rank, it is immediately promoted to a <strong>Damma</strong>. Promotion ends the active turn, even if the square is reached mid-jump sequence. Once promoted, the piece acquires long-range flight capability, letting it slide over multiple empty spaces to target vulnerable opponent lines.
+                </p>
+            </div>
+        </section>
+
+        <!-- SECTION 5: WINNING AND DIGITAL ARCHITECTURE -->
+        <section class="doc-section">
+            <h2 class="section-title">
+                <span>5. Victory Conditions & Technical Architecture</span>
+                <span class="section-title-num">[05]</span>
+            </h2>
+            <p class="doc-text">
+                A match concludes immediately when a player is unable to complete a valid move. There are two standard victory pathways:
+            </p>
+            <ul class="doc-list">
+                <li class="doc-list-item"><strong>Total Eradication:</strong> Capturing all twelve of the opponent's pieces.</li>
+                <li class="doc-list-item"><strong>Positional Lockout:</strong> Fully blocking and trapping the opponent's remaining pieces so that they have no legal diagonal moves or jumps remaining.</li>
+            </ul>
+            <p class="doc-text" style="margin-top: 10px;">
+                <strong>Digital Architecture Summary:</strong> Built using clean, modern, standard ES6 JavaScript, HTML5, and CSS3, the application executes a state-driven game loop. The artificial intelligence opponent uses a **Minimax Algorithm with Alpha-Beta Pruning** to simulate future turns up to a 5-step depth, factoring in center board dominance, piece value weightings (Ordinary vs. Damma), and capture opportunities to simulate realistic human-like behaviors.
+            </p>
+        </section>
+
+        <!-- DOCUMENT FOOTER -->
+        <footer class="doc-footer">
+            Axumit Studios &copy; 2026. Official Rulebook and Game Description for academic submission. All Rights Reserved.
+        </footer>
+
+    </div>
+
+    <!-- html2pdf.js CDN library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        function downloadPDF() {
+            const element = document.querySelector('.a4-page');
+            
+            // Premium layout parameters for perfectly scaled A4 PDF
+            const opt = {
+                margin:       [10, 10, 10, 10], // Beautiful 10mm margins
+                filename:     'Damma_Ethiopian_Game_Specification.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { 
+                    scale: 2.5, // 2.5x scale for high-definition/crisp print typography
+                    useCORS: true, 
+                    logging: false,
+                    letterRendering: true
+                },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            const btn = document.getElementById('download-pdf-btn');
+            const originalText = btn.innerHTML;
+            
+            // Play a smooth click feedback and show high-fidelity loading state
+            btn.innerHTML = `
+                <svg class="spin" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="32" stroke-dashoffset="10" fill="none"></circle>
+                </svg>
+                Generating PDF...
+            `;
+            btn.disabled = true;
+
+            // Generate, structure and download
+            html2pdf().set(opt).from(element).save().then(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }).catch(err => {
+                console.error("PDF download failed, falling back to print dialog:", err);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                window.print();
+            });
+        }
+    </script>
+
+</body>
+</html>

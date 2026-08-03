@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Damma</title>
+    <!-- Cinzel for premium traditional headings and Lora/Inter for elegant warm typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+  <script type="module" crossorigin src="/assets/index-Cek6IQFZ.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-BLoGibC1.css">
+</head>
+<body>
+
+    <!-- ======================== -->
+    <!-- 🎬 SPLASH SCREEN         -->
+    <!-- ======================== -->
+    <div id="splash-screen" class="screen active">
+        <div class="splash-container">
+            <h1 class="splash-title">AXUMIT STUDIOS</h1>
+            <div class="splash-emblem-container">
+                <img src="data:image/jpeg;base64,77+977+977+977+9ABBKRklGAAEBAAABAAEAAO+/ve+/vQBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBDvv73vv70ACwgA77+9AO+/vQEBEQDvv73vv70AFQABAQAAAAAAAAAAAAAAAAAAAAnvv73vv70AFBABAAAAAAAAAAAAAAAAAAAAAO+/ve+/vQAIAQEAAD8A77+9QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD++/ve+/vQ==" alt="AXUMIT STUDIOS Logo" class="splash-emblem-img" />
+            </div>
+            <div class="splash-loader">
+                <div class="loader-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== -->
+    <!-- 🏠 PREMIUM CINEMATIC MAIN MENU -->
+    <!-- ======================== -->
+    <div id="main-menu" class="screen cinematic-menu-screen">
+        <!-- Cinematic Parallax Background Layer -->
+        <div class="cinematic-bg-container" id="menu-parallax-bg">
+            <div class="fog-overlay"></div>
+            <div class="golden-light-glow"></div>
+            <!-- Decorative wood board pattern in background -->
+            <div class="wood-board-backdrop">
+                <div class="board-grid-backdrop">
+                    <div class="cell-glow glow-1"></div>
+                    <div class="cell-glow glow-2"></div>
+                </div>
+            </div>
+            <!-- Live particle canvas for floating dust and atmospheric fog -->
+            <canvas id="menu-particles-canvas"></canvas>
+        </div>
+
+        <!-- Top Bar Actions -->
+        <div class="menu-top-bar">
+            <!-- Settings button on Left -->
+            <button id="settings-toggle-btn" class="settings-toggle-top" aria-label="Settings" title="Settings">
+                <svg viewBox="0 0 24 24">
+                    <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.63 3.6-3.6 3.6z" fill="currentColor"/>
+                </svg>
+            </button>
+            <!-- Sound button on Right -->
+            <button id="sound-toggle-btn" class="sound-toggle-top" aria-label="Toggle Sound" title="Toggle Sound">
+                <svg viewBox="0 0 24 24">
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" fill="currentColor"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="menu-content-wrapper">
+            <!-- Premium Elegant Logo -->
+            <div class="menu-brand-header">
+                <h1 class="menu-logo-title" data-i18n="game_title">DAMMA</h1>
+                <p class="menu-logo-subtitle" data-i18n="game_subtitle">Play with me</p>
+            </div>
+
+            <!-- Centered Menu Buttons Column -->
+            <div class="premium-menu-buttons">
+                <!-- ▶ Start Game Button -->
+                <button id="start-game-btn" class="main-action-btn pulse-glow" data-i18n="menu_start_game">▶ Start Game</button>
+
+                <!-- Game Mode Selector -->
+                <div class="premium-mode-container">
+                    <div class="toggle-buttons" id="mode-selector">
+                        <button class="toggle-btn active" id="menu-vs-cpu-btn" data-mode="vs-cpu" data-i18n="menu_vs_cpu">🤖 VS CPU</button>
+                        <button class="toggle-btn" id="menu-two-players-btn" data-mode="pass-play" data-i18n="menu_two_players">👥 Two Players</button>
+                    </div>
+
+                    <!-- CPU Difficulty Selection Sub-panel -->
+                    <div class="setting-group" id="difficulty-setting">
+                        <span class="setting-label-small" data-i18n="cpu_difficulty">CPU DIFFICULTY</span>
+                        <div class="toggle-buttons" id="difficulty-selector">
+                            <button class="toggle-btn" data-level="easy" data-i18n="easy">EASY</button>
+                            <button class="toggle-btn active" data-level="medium" data-i18n="medium">MEDIUM</button>
+                            <button class="toggle-btn" data-level="hard" data-i18n="hard">HARD</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secondary Premium Actions -->
+                <div class="menu-secondary-grid">
+                    <button id="daily-challenge-btn" class="menu-secondary-btn" data-i18n="menu_daily_challenge">👑 Daily Challenge</button>
+                    <button id="menu-how-to-play-btn" class="menu-secondary-btn" data-i18n="menu_how_to_play">📖 How to Play</button>
+                    <button id="menu-settings-btn" class="menu-secondary-btn" data-i18n="menu_settings">⚙ Settings</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Developed by AXUMIT STUDIOS footer -->
+        <div class="menu-footer">
+            <span class="footer-dev">Developed by</span>
+            <span class="footer-studio">AXUMIT STUDIOS</span>
+        </div>
+    </div>
+
+    <!-- ======================== -->
+    <!-- 🎮 GAMEPLAY SCREEN       -->
+    <!-- ======================== -->
+    <div id="gameplay-screen" class="screen">
+        <div class="game-hud">
+            <button id="hud-back-btn" class="hud-btn" aria-label="Back to menu">
+                <svg viewBox="0 0 24 24" class="hud-icon">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="#ffd700"/>
+                </svg>
+            </button>
+            
+            <div class="hud-turn-container">
+                <span id="turn-indicator-text" class="turn-text neon-text-blue">PLAYER'S TURN</span>
+                <div id="hud-timer-badge" class="hud-timer-badge" style="display: none;">
+                    <span class="timer-icon">⏱️</span>
+                    <span id="hud-timer-text">00s</span>
+                </div>
+            </div>
+
+            <div class="hud-right-actions">
+                <button id="hud-pause-btn" class="hud-btn pause-btn" aria-label="Pause Game" title="Pause Game">
+                    <svg viewBox="0 0 24 24" class="hud-icon">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="#ffd700"/>
+                    </svg>
+                    <span class="hud-btn-lbl" data-i18n="pause_game">PAUSE</span>
+                </button>
+                <button id="hud-undo-btn" class="hud-btn" aria-label="Undo Last Turn" title="Undo Last Turn">
+                    <svg viewBox="0 0 24 24" class="hud-icon">
+                        <path d="M12.5 8c-2.65 0-5.05 1-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.2 8 12.5 8z" fill="#ffd700"/>
+                    </svg>
+                </button>
+                <button id="hud-reset-btn" class="hud-btn" aria-label="Reset game" title="Reset game">
+                    <svg viewBox="0 0 24 24" class="hud-icon">
+                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" fill="#e63946"/>
+                    </svg>
+                </button>
+                <button id="hud-sound-btn" class="hud-btn" aria-label="Toggle Sound" title="Toggle Sound">
+                    <svg viewBox="0 0 24 24" class="hud-icon">
+                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" fill="#ffd700"/>
+                    </svg>
+                </button>
+                <button id="hud-settings-btn" class="hud-btn" aria-label="Game Settings" title="Game Settings">
+                    <svg viewBox="0 0 24 24" class="hud-icon">
+                        <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.63 3.6-3.6 3.6z" fill="#ffd700"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="gameplay-main-content">
+            <div class="game-board-area">
+                <div class="scores-bar">
+                    <div class="score-card player1">
+                        <div class="score-indicator neon-bg-blue"></div>
+                        <div class="score-info">
+                            <span class="score-label" data-i18n="player_label_you">PLAYER (YOU)</span>
+                            <span id="p1-score" class="score-value neon-text-blue">12</span>
+                        </div>
+                    </div>
+                    <div class="score-card player2">
+                        <div class="score-info">
+                            <span id="p2-label" class="score-label">CPU</span>
+                            <span id="p2-score" class="score-value neon-text-pink">12</span>
+                        </div>
+                        <div class="score-indicator neon-bg-pink"></div>
+                    </div>
+                </div>
+
+                <div class="canvas-container">
+                    <canvas id="game-canvas"></canvas>
+                </div>
+
+                <div class="game-instruction-bar">
+                    <span id="instruction-text">Select your piece to move.</span>
+                </div>
+            </div>
+
+            <div id="move-log-panel" class="move-log-panel">
+                <div class="move-log-header">
+                    <h3 data-i18n="move_log_title">Move Log</h3>
+                    <button id="close-log-btn" class="close-btn" aria-label="Close Move Log">✕</button>
+                </div>
+                <div class="move-log-content" id="move-log-content">
+                    <!-- Logs will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Floating Button -->
+        <button id="mobile-log-btn" class="floating-log-btn" aria-label="Open Move Log">
+            <svg viewBox="0 0 24 24" width="24" height="24">
+                <path d="M4 6H20V8H4zM4 11H20V13H4zM4 16H14V18H4z" fill="currentColor"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- ======================== -->
+    <!-- 💀 GAME OVER SCREEN     -->
+    <!-- ======================== -->
+    <div id="game-over-screen" class="screen">
+        <canvas id="gameover-canvas"></canvas>
+        <div class="gameover-container">
+            <!-- Distinctive Icon Badge for result types -->
+            <div class="gameover-badge-wrapper">
+                <div class="gameover-badge" id="gameover-badge-icon">🏆</div>
+            </div>
+
+            <!-- Title & Subtitle Section -->
+            <div class="gameover-heading-group">
+                <div style="margin-bottom: 12px; display: flex; gap: 8px; justify-content: center;">
+                    <span class="gameover-tag" id="gameover-mode-tag">VS CPU</span>
+                    <span class="gameover-tag" id="gameover-diff-tag">HARD</span>
+                </div>
+                <h1 id="gameover-title-text" class="gameover-title">YOU WIN!</h1>
+                <p id="gameover-subtitle-text" class="gameover-subtitle">Congratulations! You defeated the AI.</p>
+            </div>
+
+            <!-- Styled Modern Button Actions -->
+            <div class="gameover-actions-group">
+                <button id="restart-game-btn" class="gameover-action-btn primary-btn">
+                    <span class="btn-icon">▶</span>
+                    <span class="btn-lbl" data-i18n="play_again">PLAY AGAIN</span>
+                </button>
+                <button id="menu-game-btn" class="gameover-action-btn secondary-btn">
+                    <span class="btn-icon">🏠</span>
+                    <span class="btn-lbl" data-i18n="main_menu">MAIN MENU</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== -->
+    <!-- 🚪 EXIT CONFIRMATION MODAL -->
+    <!-- ======================== -->
+    <div id="exit-modal" class="settings-modal-overlay">
+        <div class="settings-modal-container exit-modal-container">
+            <div class="exit-modal-content">
+                <span class="exit-modal-icon">🚪</span>
+                <h2 class="exit-modal-title" data-i18n="menu_exit_title">Leave the Match?</h2>
+                <p class="exit-modal-subtitle" data-i18n="menu_exit_subtitle">Are you sure you want to exit? We hope to play with you again soon!</p>
+                <div class="exit-modal-actions">
+                    <button id="exit-confirm-btn" class="exit-modal-btn confirm" data-i18n="menu_confirm_exit">Yes, Exit</button>
+                    <button id="exit-cancel-btn" class="exit-modal-btn cancel" data-i18n="menu_cancel_exit">Keep Playing</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== -->
+    <!-- ⚙️ SYSTEM SETTINGS MODAL  -->
+    <!-- ======================== -->
+    <div id="settings-modal" class="settings-modal-overlay">
+        <div class="settings-modal-container">
+            <!-- Modal Header -->
+            <div class="settings-header">
+                <div class="settings-header-title">
+                    <svg class="settings-icon-spin animate-spin-slow" viewBox="0 0 24 24" width="28" height="28">
+                        <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.63 3.6-3.6 3.6z" fill="#ffd700"/>
+                    </svg>
+                    <h2 data-i18n="system_config">SYSTEM CONFIGURATION</h2>
+                </div>
+                <button id="close-settings-btn" class="settings-close-btn" aria-label="Close Settings">✕</button>
+            </div>
+            
+            <div class="settings-body">
+                <!-- Navigation Sidebar -->
+                <div class="settings-sidebar" id="settings-sidebar">
+                    <button class="settings-nav-item active" data-tab="appearance">
+                        <span class="nav-icon">🎨</span>
+                        <span class="nav-text" data-i18n="tab_appearance">Appearance</span>
+                    </button>
+                    <button class="settings-nav-item" data-tab="rules">
+                        <span class="nav-icon">⚖️</span>
+                        <span class="nav-text" data-i18n="tab_rules">Game Rules</span>
+                    </button>
+                    <button class="settings-nav-item" data-tab="audio">
+                        <span class="nav-icon">🔊</span>
+                        <span class="nav-text" data-i18n="tab_audio">Audio</span>
+                    </button>
+                    <button class="settings-nav-item" data-tab="gameplay">
+                        <span class="nav-icon">🎮</span>
+                        <span class="nav-text" data-i18n="tab_gameplay">Gameplay</span>
+                    </button>
+                    <button class="settings-nav-item" data-tab="tutorial">
+                        <span class="nav-icon">📖</span>
+                        <span class="nav-text" data-i18n="tab_tutorial">How to Play</span>
+                    </button>
+                    <button class="settings-nav-item" data-tab="about">
+                        <span class="nav-icon">ℹ️</span>
+                        <span class="nav-text" data-i18n="tab_about">About</span>
+                    </button>
+                </div>
+                
+                <!-- Content Panel -->
+                <div class="settings-content" id="settings-content-panel">
+                    <button class="settings-mobile-back" id="settings-mobile-back-btn">⬅ Back to Categories</button>
+                    
+                    <!-- 1. APPEARANCE TAB -->
+                    <div class="settings-pane active" id="pane-appearance">
+                        <h3 class="pane-title">Appearance</h3>
+                        
+                        <div class="bento-settings-grid" style="grid-template-columns: 1fr; margin-bottom: 20px;">
+                            <div class="bento-card">
+                                <div class="bento-label-row">
+                                    <span class="bento-label">Color Theme Mode</span>
+                                    <div class="toggle-buttons-bar" id="accessibility-theme-mode">
+                                        <button class="p-toggle-btn active" data-val="wood">Wood</button>
+                                        <button class="p-toggle-btn" data-val="dark">Dark</button>
+                                        <button class="p-toggle-btn" data-val="light">Light</button>
+                                        <button class="p-toggle-btn" data-val="system">System</button>
+                                    </div>
+                                </div>
+                                <span class="bento-desc">Choose the traditional wood look, dark, light, or follow your system preference.</span>
+                            </div>
+
+                            <div class="bento-card">
+                                <div class="bento-label-row">
+                                    <span class="bento-label">Piece Colors</span>
+                                </div>
+                                <span class="bento-desc">Select custom gemstone or wood colors for each player.</span>
+                                <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
+                                    <div class="setting-group" style="margin-bottom: 0;">
+                                        <span class="setting-label" style="font-size: 0.8rem; letter-spacing: 1px;">PLAYER 1 (YOU)</span>
+                                        <div class="color-palette" id="p1-color-palette"></div>
+                                    </div>
+                                    <div class="setting-group" style="margin-bottom: 0;">
+                                        <span class="setting-label" style="font-size: 0.8rem; letter-spacing: 1px;">PLAYER 2 / AI</span>
+                                        <div class="color-palette" id="p2-color-palette"></div>
+                                    </div>
+                                    <div id="color-error-message" class="color-error-msg" style="display: none; margin-top: 8px;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stone-customization-layout" style="margin-bottom: 24px;">
+                            <div class="stone-controls">
+                                <label class="setting-label-bold">STONE COLOR THEME PRESETS</label>
+                                <div class="theme-picker-grid">
+                                    <button class="theme-theme-picker-card theme-picker-card active" data-stone-theme="classic">
+                                        <span class="theme-picker-colors"><span class="color-dot bg-black"></span><span class="color-dot bg-white border"></span></span>
+                                        <span class="theme-picker-name">Classic</span>
+                                    </button>
+                                    <button class="theme-theme-picker-card theme-picker-card" data-stone-theme="royal">
+                                        <span class="theme-picker-colors"><span class="color-dot bg-gold"></span><span class="color-dot bg-silver"></span></span>
+                                        <span class="theme-picker-name">Royal</span>
+                                    </button>
+                                    <button class="theme-theme-picker-card theme-picker-card" data-stone-theme="nature">
+                                        <span class="theme-picker-colors"><span class="color-dot bg-green"></span><span class="color-dot bg-brown"></span></span>
+                                        <span class="theme-picker-name">Nature</span>
+                                    </button>
+                                    <button class="theme-theme-picker-card theme-picker-card" data-stone-theme="ocean">
+                                        <span class="theme-picker-colors"><span class="color-dot bg-blue"></span><span class="color-dot bg-cyan"></span></span>
+                                        <span class="theme-picker-name">Ocean</span>
+                                    </button>
+                                    <button class="theme-theme-picker-card theme-picker-card" data-stone-theme="fire">
+                                        <span class="theme-picker-colors"><span class="color-dot bg-red"></span><span class="color-dot bg-orange"></span></span>
+                                        <span class="theme-picker-name">Fire</span>
+                                    </button>
+                                    <button class="theme-theme-picker-card theme-picker-card" data-stone-theme="dark">
+                                        <span class="theme-picker-colors"><span class="color-dot bg-black"></span><span class="color-dot bg-gold"></span></span>
+                                        <span class="theme-picker-name">Dark Mode</span>
+                                    </button>
+                                    <button class="theme-theme-picker-card theme-picker-card" data-stone-theme="traditional">
+                                        <span class="theme-picker-colors"><span class="color-dot bg-dark-brown"></span><span class="color-dot bg-light-brown"></span></span>
+                                        <span class="theme-picker-name">Ethiopian Wood</span>
+                                    </button>
+                                    <button class="theme-theme-picker-card theme-picker-card" data-stone-theme="emerald">
+                                        <span class="theme-picker-colors"><span class="color-dot bg-dark-green"></span><span class="color-dot bg-ivory"></span></span>
+                                        <span class="theme-picker-name">Emerald</span>
+                                    </button>
+                                </div>
+
+                                <label class="setting-label-bold mt-4">STONE STYLE MATERIAL</label>
+                                <select class="settings-select w-full" id="stone-style-select">
+                                    <option value="classic_flat">Classic Flat</option>
+                                    <option value="glossy">Glossy Resin</option>
+                                    <option value="wooden" selected>Ethiopian Teak Wood</option>
+                                    <option value="marble">Polished Marble</option>
+                                    <option value="glass">Tempered Glass</option>
+                                    <option value="metal">Brushed Gold / Silver Metal</option>
+                                    <option value="traditional_ethiopian">Traditional Carved Clay</option>
+                                    <option value="premium_gold">Premium 24k Gilded Gold</option>
+                                    <option value="premium_obsidian">Premium Polished Obsidian</option>
+                                </select>
+                            </div>
+                            
+                            <div class="stone-preview-box">
+                                <span class="preview-title">LIVE STONE PREVIEW</span>
+                                <div class="preview-stones-row">
+                                    <div class="stone-preview-item">
+                                        <canvas id="p1-stone-preview" width="90" height="90"></canvas>
+                                        <span class="stone-preview-label">Player 1 (You)</span>
+                                    </div>
+                                    <div class="stone-preview-item">
+                                        <canvas id="p2-stone-preview" width="90" height="90"></canvas>
+                                        <span class="stone-preview-label">Player 2 / AI</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 class="setting-label-bold mt-6" style="margin-bottom: 12px; display: block;">BOARD THEMES</h4>
+                        <p class="pane-desc" style="margin-bottom: 16px;">Transform the checkerboard cell and wood casing textures instantly.</p>
+                        
+                        <div class="board-themes-grid">
+                            <button class="board-theme-card active" data-board-theme="traditional_wood">
+                                <div class="theme-swatch traditional-wood-swatch"></div>
+                                <span class="theme-name">Traditional Wood</span>
+                            </button>
+                            <button class="board-theme-card" data-board-theme="dark_wood">
+                                <div class="theme-swatch dark-wood-swatch"></div>
+                                <span class="theme-name">Dark Wood</span>
+                            </button>
+                            <button class="board-theme-card" data-board-theme="mahogany">
+                                <div class="theme-swatch mahogany-swatch"></div>
+                                <span class="theme-name">Mahogany</span>
+                            </button>
+                            <button class="board-theme-card" data-board-theme="marble">
+                                <div class="theme-swatch marble-swatch"></div>
+                                <span class="theme-name">Marble Stone</span>
+                            </button>
+                            <button class="board-theme-card" data-board-theme="green_felt">
+                                <div class="theme-swatch green-felt-swatch"></div>
+                                <span class="theme-name">Green Felt</span>
+                            </button>
+                            <button class="board-theme-card" data-board-theme="black_minimal">
+                                <div class="theme-swatch black-minimal-swatch"></div>
+                                <span class="theme-name">Black Minimal</span>
+                            </button>
+                            <button class="board-theme-card" data-board-theme="white_minimal">
+                                <div class="theme-swatch white-minimal-swatch"></div>
+                                <span class="theme-name">White Minimal</span>
+                            </button>
+                            <button class="board-theme-card" data-board-theme="royal_gold">
+                                <div class="theme-swatch royal-gold-swatch"></div>
+                                <span class="theme-name">Royal Gold</span>
+                            </button>
+                            <button class="board-theme-card" data-board-theme="ancient_ethiopia">
+                                <div class="theme-swatch ancient-ethiopia-swatch"></div>
+                                <span class="theme-name">Ancient Ethiopia</span>
+                            </button>
+                            <button class="board-theme-card" data-board-theme="coffee_house">
+                                <div class="theme-swatch coffee-house-swatch"></div>
+                                <span class="theme-name">Coffee House</span>
+                            </button>
+                            <button class="board-theme-card" data-board-theme="axumit">
+                                <div class="theme-swatch axumit-swatch"></div>
+                                <span class="theme-name">Axumit Obelisk</span>
+                            </button>
+                            <button class="board-theme-card" data-board-theme="night_mode">
+                                <div class="theme-swatch night-mode-swatch"></div>
+                                <span class="theme-name">Night Mode</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. GAME RULES TAB -->
+                    <div class="settings-pane" id="pane-rules">
+                        <h3 class="pane-title">Game Rules</h3>
+                        <div class="rule-presets-grid" id="main-rules-selector">
+                            <button class="preset-card active" data-rule="egregna">
+                                <span class="preset-name">Egregna</span>
+                                <span class="preset-desc">Classic Ethiopian Damma. Standard Kings. Kings move and capture 1 square in any direction. Capture is forced. (Default)</span>
+                            </button>
+                            <button class="preset-card" data-rule="toregna">
+                                <span class="preset-name">Toregna</span>
+                                <span class="preset-desc">Flying King Ethiopian Damma. Flying Kings slide any distance diagonally and capture. Capture is forced.</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 3. AUDIO TAB -->
+                    <div class="settings-pane" id="pane-audio">
+                        <h3 class="pane-title">Audio</h3>
+                        
+                        <div class="audio-sliders-container">
+                            <div class="audio-slider-row">
+                                <div class="audio-slider-labels">
+                                    <span class="slider-label">🔊 Master Volume</span>
+                                    <span class="slider-value" id="val-master-volume">80%</span>
+                                </div>
+                                <input type="range" min="0" max="100" value="80" class="settings-range" id="range-master-volume">
+                            </div>
+                            <div class="audio-slider-row">
+                                <div class="audio-slider-labels">
+                                    <span class="slider-label">🎵 Ambient Music</span>
+                                    <span class="slider-value" id="val-music-volume">50%</span>
+                                </div>
+                                <input type="range" min="0" max="100" value="50" class="settings-range" id="range-music-volume">
+                            </div>
+                            <div class="audio-slider-row">
+                                <div class="audio-slider-labels">
+                                    <span class="slider-label">⚡ Sound Effects (SFX)</span>
+                                    <span class="slider-value" id="val-sfx-volume">80%</span>
+                                </div>
+                                <input type="range" min="0" max="100" value="80" class="settings-range" id="range-sfx-volume">
+                            </div>
+                        </div>
+
+                        <h3 class="pane-sub-title mt-4">Sound Triggers</h3>
+                        <div class="audio-triggers-grid">
+                            <label class="audio-checkbox">
+                                <input type="checkbox" id="sfx-move-sound" checked>
+                                <span class="custom-checkbox"></span>
+                                Piece Move Sound
+                            </label>
+                            <label class="audio-checkbox">
+                                <input type="checkbox" id="sfx-capture-sound" checked>
+                                <span class="custom-checkbox"></span>
+                                Piece Capture Sound
+                            </label>
+                            <label class="audio-checkbox">
+                                <input type="checkbox" id="sfx-victory-sound" checked>
+                                <span class="custom-checkbox"></span>
+                                Game Over Fanfare
+                            </label>
+                            <label class="audio-checkbox">
+                                <input type="checkbox" id="sfx-click-sound" checked>
+                                <span class="custom-checkbox"></span>
+                                Button Click Sound
+                            </label>
+                            <label class="audio-checkbox">
+                                <input type="checkbox" id="sfx-ambient-enabled" checked>
+                                <span class="custom-checkbox"></span>
+                                Ambient Music Enabled
+                            </label>
+                        </div>
+
+                        <div class="settings-group-block mt-4 flex-row-toggle border-t">
+                            <div class="flex-column pt-3">
+                                <span class="toggle-heading text-red">MUTE ALL AUDIO</span>
+                                <span class="toggle-subtext">Silence all sounds and music.</span>
+                            </div>
+                            <label class="switch mt-3">
+                                <input type="checkbox" id="audio-mute-all">
+                                <span class="slider red-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- 4. GAMEPLAY TAB -->
+                    <div class="settings-pane" id="pane-gameplay">
+                        <h3 class="pane-title">Gameplay</h3>
+                        
+                        <div class="settings-group-block" style="margin-bottom: 20px;">
+                            <label class="setting-label-bold">AI DIFFICULTY</label>
+                            <div class="toggle-buttons-bar" id="ai-strength-bar">
+                                <button class="p-toggle-btn" data-val="easy">Easy</button>
+                                <button class="p-toggle-btn active" data-val="medium">Medium</button>
+                                <button class="p-toggle-btn" data-val="hard">Hard</button>
+                                <button class="p-toggle-btn" data-val="expert">Expert</button>
+                                <button class="p-toggle-btn" data-val="master">Master</button>
+                            </div>
+                        </div>
+
+                        <div class="bento-settings-grid">
+                            <div class="bento-card">
+                                <div class="bento-label-row">
+                                    <span class="bento-label">Show Move Hints</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="rule-show-hints" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <span class="bento-desc">Add golden ring around selected piece.</span>
+                            </div>
+                            <div class="bento-card">
+                                <div class="bento-label-row">
+                                    <span class="bento-label">Show Legal Moves</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="rule-show-legal" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <span class="bento-desc">Display dots showing valid landing spots.</span>
+                            </div>
+                            <div class="bento-card">
+                                <div class="bento-label-row">
+                                    <span class="bento-label">Piece Glide Animations</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="gameplay-piece-anim" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <span class="bento-desc">Enable smooth sliding transitions on board.</span>
+                            </div>
+                            <div class="bento-card">
+                                <div class="bento-label-row">
+                                    <span class="bento-label">Animation Speed</span>
+                                    <select class="settings-select" id="gameplay-anim-speed">
+                                        <option value="slow">Slow</option>
+                                        <option value="normal" selected>Normal</option>
+                                        <option value="fast">Fast</option>
+                                        <option value="instant">Instant</option>
+                                    </select>
+                                </div>
+                                <span class="bento-desc">Adjust piece movement speed.</span>
+                            </div>
+                            <div class="bento-card">
+                                <div class="bento-label-row">
+                                    <span class="bento-label">Show Grid Coordinates</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="gameplay-coordinates" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <span class="bento-desc">Render lettered/numbered margins (A1-H8).</span>
+                            </div>
+                            <div class="bento-card">
+                                <div class="bento-label-row">
+                                    <span class="bento-label">Confirm On Restart</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="gameplay-confirm-restart" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <span class="bento-desc">Prompt before resetting match in progress.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. HOW TO PLAY TUTORIAL TAB -->
+                    <div class="settings-pane" id="pane-tutorial">
+                        <div class="tutorial-wrapper">
+                            <div class="tutorial-header-bar">
+                                <div>
+                                    <h3 class="pane-title" style="margin-bottom:2px;">📖 How to Play Damma</h3>
+                                    <span class="tutorial-subtitle">Interactive step-by-step tutorial with live board demonstrations.</span>
+                                </div>
+                                <div class="tutorial-step-badge" id="tutorial-step-counter">Step 1 of 8</div>
+                            </div>
+
+                            <div class="tutorial-main-stage">
+                                <div class="tutorial-board-container">
+                                    <canvas id="tutorial-demo-canvas" width="340" height="340"></canvas>
+                                </div>
+
+                                <div class="tutorial-card-panel">
+                                    <div class="tutorial-step-tag" id="tutorial-step-tag">LESSON 1</div>
+                                    <h4 class="tutorial-step-title" id="tutorial-step-title">How Pieces Move</h4>
+                                    <p class="tutorial-step-desc" id="tutorial-step-desc">
+                                        In traditional Ethiopian Damma, ordinary pieces move orthogonally (forward, left, or right) onto adjacent empty squares. Diagonal moves are NOT permitted for regular pieces!
+                                    </p>
+                                    <div class="tutorial-highlights-box" id="tutorial-highlights-box">
+                                        💡 <strong>Key Rule:</strong> Regular pieces move forward and sideways, but cannot move backward without capturing.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tutorial-controls-bar">
+                                <button id="tutorial-prev-btn" class="tutorial-btn secondary" disabled>⬅ Previous</button>
+                                <div class="tutorial-dots-container" id="tutorial-dots"></div>
+                                <button id="tutorial-replay-btn" class="tutorial-btn icon-btn" title="Replay Step">🔄 Replay Step</button>
+                                <button id="tutorial-restart-btn" class="tutorial-btn icon-btn" title="Restart Tutorial">↩️ Restart Tutorial</button>
+                                <button id="tutorial-next-btn" class="tutorial-btn primary">Next ➡</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 6. ABOUT TAB -->
+                    <div class="settings-pane" id="pane-about">
+                        <div class="about-card-view">
+                            <img src="data:image/jpeg;base64,77+977+977+977+9ABBKRklGAAEBAAABAAEAAO+/ve+/vQBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBDvv73vv70ACwgA77+9AO+/vQEBEQDvv73vv70AFQABAQAAAAAAAAAAAAAAAAAAAAnvv73vv70AFBABAAAAAAAAAAAAAAAAAAAAAO+/ve+/vQAIAQEAAD8A77+9QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD++/ve+/vQ==" alt="AXUMIT STUDIOS Emblem" class="about-emblem-logo">
+                            <h3 class="about-game-title">DAMMA</h3>
+                            <span class="about-version">Version 1.2.0</span>
+                            <span class="about-dev">DEVELOPER</span>
+                            <span class="about-studio">AXUMIT STUDIOS</span>
+                            
+                            <p class="about-description">
+                                Damma is a modern digital adaptation of the traditional Ethiopian strategy board game, combining cultural heritage with modern gameplay, intelligent AI, and a clean user experience.
+                            </p>
+
+                            <div class="about-footer-tag">
+                                © 2026 AXUMIT STUDIOS. All Rights Reserved.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- ========================================== -->
+    <!-- 🏆 ACHIEVEMENTS MODAL                    -->
+    <!-- ========================================== -->
+    <div id="achievements-modal" class="modal">
+        <div class="modal-dialog achievements-dialog" style="max-width: 580px; width: 92%;">
+            <div class="modal-header">
+                <h3 style="font-family: 'Cinzel', serif; color: #ffd700; margin: 0; font-size: 1.25rem;">🏆 Cultural Achievements & Badges</h3>
+                <button id="close-achievements-btn" class="settings-close-btn" aria-label="Close Achievements">✕</button>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <p class="pane-desc" style="margin-bottom: 16px;">Earn honorary titles and badges as you master Damma.</p>
+                <div class="badges-list" style="display: flex; flex-direction: column; gap: 12px;">
+                    <div class="rank-row" style="padding: 12px 16px; background: rgba(255,255,255,0.04); border-radius: 8px; border: 1px solid rgba(229,184,66,0.2); display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="font-size: 1.5rem;">🛡️</span>
+                            <div>
+                                <strong style="color: #ffd700; display: block;">Axum Warrior</strong>
+                                <span style="font-size: 0.8rem; color: #aaa;">Play your first traditional game</span>
+                            </div>
+                        </div>
+                        <span class="badge gold-badge">Unlocked</span>
+                    </div>
+
+                    <div class="rank-row" style="padding: 12px 16px; background: rgba(255,255,255,0.04); border-radius: 8px; border: 1px solid rgba(229,184,66,0.2); display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="font-size: 1.5rem;">🦁</span>
+                            <div>
+                                <strong style="color: #ffd700; display: block;">Lion of Judah</strong>
+                                <span style="font-size: 0.8rem; color: #aaa;">Perform a multi-jump capture of 2 or more pieces</span>
+                            </div>
+                        </div>
+                        <span class="badge gold-badge">Unlocked</span>
+                    </div>
+
+                    <div class="rank-row" style="padding: 12px 16px; background: rgba(255,255,255,0.04); border-radius: 8px; border: 1px solid rgba(229,184,66,0.2); display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="font-size: 1.5rem;">👑</span>
+                            <div>
+                                <strong style="color: #ffd700; display: block;">King Lalibela</strong>
+                                <span style="font-size: 0.8rem; color: #aaa;">Promote a piece into a Flying King</span>
+                            </div>
+                        </div>
+                        <span class="badge yellow-badge">In Progress</span>
+                    </div>
+
+                    <div class="rank-row" style="padding: 12px 16px; background: rgba(255,255,255,0.04); border-radius: 8px; border: 1px solid rgba(229,184,66,0.1); opacity: 0.7; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="font-size: 1.5rem;">☕</span>
+                            <div>
+                                <strong style="color: #ddd; display: block;">Coffee Master</strong>
+                                <span style="font-size: 0.8rem; color: #aaa;">Win a match in under 3 minutes</span>
+                            </div>
+                        </div>
+                        <span class="badge" style="background: #333; color: #888;">Locked</span>
+                    </div>
+
+                    <div class="rank-row" style="padding: 12px 16px; background: rgba(255,255,255,0.04); border-radius: 8px; border: 1px solid rgba(229,184,66,0.1); opacity: 0.7; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="font-size: 1.5rem;">🗼</span>
+                            <div>
+                                <strong style="color: #ddd; display: block;">Obelisk Grandmaster</strong>
+                                <span style="font-size: 0.8rem; color: #aaa;">Defeat the CPU on Hard or Expert difficulty</span>
+                            </div>
+                        </div>
+                        <span class="badge" style="background: #333; color: #888;">Locked</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Custom hidden file input for import -->
+    <input type="file" id="settings-import-file" style="display: none;" accept=".json">
+
+    <!-- ========================================== -->
+    <!-- ⏸️ GAME PAUSE MENU MODAL                  -->
+    <!-- ========================================== -->
+    <div id="pause-modal" class="modal pause-modal-overlay">
+        <div class="modal-dialog pause-dialog">
+            <div class="pause-header">
+                <div class="pause-icon-badge">⏸️</div>
+                <h2 class="pause-title" data-i18n="pause_title">GAME PAUSED</h2>
+                <p class="pause-subtitle">Take a breath. Imperial match is paused.</p>
+            </div>
+
+            <div class="pause-menu-actions">
+                <button id="pause-resume-btn" class="pause-action-btn primary">
+                    <span class="btn-icon">▶</span>
+                    <span class="btn-text" data-i18n="resume_game">Resume Game</span>
+                </button>
+                <button id="pause-restart-btn" class="pause-action-btn secondary">
+                    <span class="btn-icon">🔄</span>
+                    <span class="btn-text" data-i18n="restart_game">Restart Game</span>
+                </button>
+                <button id="pause-settings-btn" class="pause-action-btn secondary">
+                    <span class="btn-icon">⚙</span>
+                    <span class="btn-text" data-i18n="settings">Settings</span>
+                </button>
+                <button id="pause-main-menu-btn" class="pause-action-btn danger">
+                    <span class="btn-icon">🏠</span>
+                    <span class="btn-text" data-i18n="back_to_main_menu">Back to Main Menu</span>
+                </button>
+            </div>
+
+            <!-- Confirmation View for Main Menu -->
+            <div id="pause-main-menu-confirm" class="pause-confirm-card" style="display: none;">
+                <div class="confirm-icon">⚠️</div>
+                <h3 class="confirm-title" data-i18n="confirm_main_menu_title">Return to Main Menu?</h3>
+                <p class="confirm-desc" data-i18n="confirm_main_menu_desc">Are you sure you want to return to the Main Menu? Unsaved progress will be lost.</p>
+                <div class="confirm-actions">
+                    <button id="pause-confirm-menu-yes" class="pause-confirm-btn danger" data-i18n="yes_return">Yes, Return</button>
+                    <button id="pause-confirm-menu-no" class="pause-confirm-btn cancel" data-i18n="keep_playing">Keep Playing</button>
+                </div>
+            </div>
+
+            <!-- Confirmation View for Restart -->
+            <div id="pause-restart-confirm" class="pause-confirm-card" style="display: none;">
+                <div class="confirm-icon">🔄</div>
+                <h3 class="confirm-title" data-i18n="confirm_restart_title">Restart Match?</h3>
+                <p class="confirm-desc" data-i18n="confirm_restart_desc">Are you sure you want to restart this match?</p>
+                <div class="confirm-actions">
+                    <button id="pause-confirm-restart-yes" class="pause-confirm-btn danger" data-i18n="yes_restart">Yes, Restart</button>
+                    <button id="pause-confirm-restart-no" class="pause-confirm-btn cancel" data-i18n="cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 👑 DAILY CHALLENGE MODAL                  -->
+    <!-- ========================================== -->
+    <div id="daily-challenge-modal" class="modal">
+        <div class="modal-dialog daily-dialog" style="max-width: 540px; width: 92%;">
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.5rem;">👑</span>
+                    <div>
+                        <h3 style="font-family: 'Cinzel', serif; color: #ffd700; margin: 0; font-size: 1.2rem;" data-i18n="daily_challenge_title">DAILY IMPERIAL CHALLENGE</h3>
+                        <span id="daily-date-badge" style="font-size: 0.75rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px;">TODAY'S PUZZLE</span>
+                    </div>
+                </div>
+                <button id="close-daily-modal-btn" class="settings-close-btn" aria-label="Close Daily Challenge">✕</button>
+            </div>
+
+            <div class="modal-body" style="padding: 20px;">
+                <!-- Difficulty Tabs -->
+                <div class="daily-diff-tabs" id="daily-diff-tabs">
+                    <button class="diff-tab-btn" data-diff="easy">🟢 EASY</button>
+                    <button class="diff-tab-btn active" data-diff="medium">🟡 MEDIUM</button>
+                    <button class="diff-tab-btn" data-diff="hard">🔴 HARD</button>
+                </div>
+
+                <!-- Challenge Details Card -->
+                <div class="daily-puzzle-card">
+                    <div class="puzzle-header">
+                        <span id="daily-challenge-badge" class="puzzle-level-badge">MEDIUM PUZZLE</span>
+                        <span id="daily-challenge-status" class="puzzle-status-badge">Unsolved</span>
+                    </div>
+                    <h4 id="daily-challenge-title" class="puzzle-title">Lalibela Double Counter</h4>
+                    <p id="daily-challenge-desc" class="puzzle-desc">Position your piece or execute a tactical jump sequence to win the challenge.</p>
+                    <div class="puzzle-hint-box">
+                        <span>💡 <strong>Goal:</strong> Defeat the CPU setup in this verified tactical position.</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: flex-end;">
+                    <button id="daily-launch-btn" class="daily-action-btn primary">⚔️ Launch Challenge</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
