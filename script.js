@@ -11,6 +11,8 @@ window.addEventListener('error', (e) => {
 
 import en from './translations/en.js';
 import am from './translations/am.js';
+import { initOnlineUI, getCurrentOnlineRoomId } from './src/online/onlineUI.js';
+import { sendOnlineMove } from './src/online/roomService.js';
 
 const translations = { en, am };
 
@@ -366,6 +368,7 @@ const SoundSystem = {
         }
     }
 };
+window.SoundSystem = SoundSystem;
 
 // ==========================================
 // ⚙️ GAME RULES STATE & PERSISTENCE
@@ -726,21 +729,58 @@ function updateDynamicUI() {
     
     // Update labels
     const p1Label = document.querySelector('.score-card.player1 .score-label');
-    if (p1Label) {
-        if (gameStateManager.gameMode === 'vs-cpu') {
-            p1Label.textContent = t('player_label_you', `PLAYER (YOU)`);
-        } else {
-            p1Label.textContent = t('player1_label_you', `PLAYER 1 (YOU)`);
-        }
-    }
-    
     const p2Label = document.getElementById('p2-label');
-    if (p2Label) {
-        if (gameStateManager.gameMode === 'vs-cpu') {
-            const difficultyStr = t(gameStateManager.difficulty, gameStateManager.difficulty.toUpperCase());
-            p2Label.textContent = `${t('cpu_label', 'CPU')} (${difficultyStr})`;
-        } else {
-            p2Label.textContent = t('player2_label', `PLAYER 2`);
+    const turnText = document.getElementById('turn-indicator-text');
+
+    if (gameStateManager.gameMode === 'online') {
+        const onlineData = typeof window.getOnlineUsernames === 'function' ? window.getOnlineUsernames() : null;
+        if (onlineData) {
+            const myUid = typeof window.getCurrentUserUid === 'function' ? window.getCurrentUserUid() : null;
+            const isP1 = myUid === onlineData.p1Uid;
+
+            if (p1Label) {
+                p1Label.textContent = isP1 ? `${onlineData.p1Username} (YOU)` : `${onlineData.p1Username}`;
+            }
+            if (p2Label) {
+                p2Label.textContent = !isP1 ? `${onlineData.p2Username} (YOU)` : `${onlineData.p2Username}`;
+            }
+
+            if (turnText) {
+                let currentTurn = onlineData.currentTurn || 1;
+                if (gameStateManager.activeGameInstance) {
+                    currentTurn = gameStateManager.activeGameInstance.getTurn();
+                }
+                const myRole = isP1 ? 1 : -1;
+                const isMyTurn = currentTurn === myRole;
+                const activeOppName = isP1 ? onlineData.p2Username : onlineData.p1Username;
+
+                if (isMyTurn) {
+                    turnText.textContent = 'YOUR TURN';
+                    turnText.style.color = '#ffd700';
+                    turnText.style.textShadow = '0 0 6px #ffd700';
+                } else {
+                    turnText.textContent = `${activeOppName.toUpperCase()}'S TURN`;
+                    turnText.style.color = '#3b82f6';
+                    turnText.style.textShadow = '0 0 6px #3b82f6';
+                }
+            }
+        }
+    } else {
+        if (p1Label) {
+            if (gameStateManager.gameMode === 'vs-cpu') {
+                p1Label.textContent = t('player_label_you', `PLAYER (YOU)`);
+            } else {
+                p1Label.textContent = t('player1_label_you', `PLAYER 1 (YOU)`);
+            }
+        }
+        
+        if (p2Label) {
+            if (gameStateManager.gameMode === 'vs-cpu') {
+                const difficultyStr = t(gameStateManager.difficulty, gameStateManager.difficulty.toUpperCase());
+                p2Label.textContent = `${t('cpu_label', 'CPU')} (${difficultyStr})`;
+            } else {
+                p2Label.textContent = t('player2_label', `PLAYER 2`);
+            }
         }
     }
     
@@ -768,9 +808,7 @@ function updateDynamicUI() {
         p2Score.style.textShadow = `0 0 6px ${p2Col.glowColor}`;
     }
     
-    // Update active turn indication
-    const turnText = document.getElementById('turn-indicator-text');
-    if (turnText) {
+    if (turnText && gameStateManager.gameMode !== 'online') {
         let currentTurn = 1;
         let isMultiJump = false;
         let hasMandatory = false;
@@ -890,6 +928,7 @@ const gameStateManager = {
         }
     }
 };
+window.gameStateManager = gameStateManager;
 
 // ========================
 // 🎬 SPLASH SCREEN TIMEOUT
@@ -1490,8 +1529,10 @@ function createGame() {
     // ♟️ BOARD INITIALIZATION (8x8 CHECKERBOARD)
     // ==========================================
     let activeDailyMeta = null;
+    let myOnlineRole = null;
 
     function saveGameToLocalStorage() {
+        if (gameStateManager.gameMode === 'online') return;
         try {
             localStorage.setItem('damma-saved-game', JSON.stringify({
                 board,
@@ -1555,7 +1596,7 @@ function createGame() {
             }
         }
 
-        if (!forceFresh) {
+        if (!forceFresh && gameStateManager.gameMode !== 'online') {
             const saved = localStorage.getItem('damma-saved-game');
             if (saved) {
                 try {
@@ -2395,6 +2436,13 @@ function createGame() {
                 scanMandatoryCaptures();
                 updateHUD();
                 
+                if (gameStateManager.gameMode === 'online') {
+                    const roomId = getCurrentOnlineRoomId();
+                    if (roomId) {
+                        sendOnlineMove(roomId, board, p1Count, p2Count, turn, totalMoves, null, null);
+                    }
+                }
+
                 // If it is CPU's turn, trigger the next capture automatically
                 if (turn === -1 && gameStateManager.gameMode === 'vs-cpu') {
                     cpuMakeDecision();
@@ -2412,7 +2460,65 @@ function createGame() {
         updateHUD();
 
         // Check if game has ended
-        if (checkGameOver()) return;
+        let isGameOver = false;
+        let gameOverWinner = 0; // 1 = P1, -1 = P2
+        let winReason = null;
+
+        if (p1Count === 0) {
+            isGameOver = true;
+            gameOverWinner = -1; // P2 wins
+            winReason = 'capture';
+        } else if (p2Count === 0) {
+            isGameOver = true;
+            gameOverWinner = 1; // P1 wins
+            winReason = 'capture';
+        } else {
+            // Check if active player has any legal moves
+            let hasMoves = false;
+            if (mandatoryCaptures.length > 0) {
+                hasMoves = true;
+            } else {
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        if (Math.sign(board[r][c]) === turn) {
+                            const moves = getPieceNormalMoves(r, c);
+                            if (moves.length > 0) {
+                                hasMoves = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (hasMoves) break;
+                }
+            }
+            if (!hasMoves) {
+                isGameOver = true;
+                gameOverWinner = -turn; // Opponent wins
+                winReason = 'no_moves';
+            }
+        }
+
+        // If ONLINE mode, sync move state (including win/ended status) to Firestore
+        if (gameStateManager.gameMode === 'online') {
+            const roomId = getCurrentOnlineRoomId();
+            if (roomId) {
+                let winnerUid = null;
+                if (isGameOver) {
+                    winnerUid = gameOverWinner === 1 ? 'p1' : 'p2';
+                }
+                sendOnlineMove(roomId, board, p1Count, p2Count, turn, totalMoves, winnerUid, winReason);
+            }
+        }
+
+        if (isGameOver) {
+            endGame(
+                gameOverWinner, 
+                winReason === 'capture' 
+                    ? (gameOverWinner === 1 ? "Player 1 captures all pieces!" : "Player 2 captures all pieces!")
+                    : "No moves left for opponent!"
+            );
+            return;
+        }
 
         // Save state snapshot right at the start of Player's Turn
         if (turn === 1 && multiJumpPiece === null) {
@@ -2472,6 +2578,11 @@ function createGame() {
 
     function endGame(winner, reason) {
         localStorage.removeItem('damma-saved-game');
+
+        if (gameStateManager.gameMode === 'online') {
+            // Online mode handles game over display & rating updates via room listener in onlineUI.ts
+            return;
+        }
 
         // Stop any previous game over animation
         if (typeof cleanupGameOverCanvas === 'function') {
@@ -3233,6 +3344,12 @@ function createGame() {
     function handleInteraction(clientX, clientY) {
         if (isCpuThinking || isTerminated || (typeof PauseManager !== 'undefined' && PauseManager.isPaused)) return;
 
+        if (gameStateManager.gameMode === 'online') {
+            if (myOnlineRole !== null && turn !== myOnlineRole) {
+                return; // Ignore board clicks if it's the opponent's turn in online match
+            }
+        }
+
         // Resolve absolute position relative to canvas
         const rect = canvas.getBoundingClientRect();
         const touchX = clientX - rect.left;
@@ -3320,6 +3437,29 @@ function createGame() {
 
     // EXPORT CORE ACTIONS FOR THE STATE MANAGER
     return {
+        syncOnlineBoard(newBoard, newTurn, myRole) {
+            if (myRole !== undefined && myRole !== null) {
+                myOnlineRole = myRole;
+            }
+            if (newBoard && Array.isArray(newBoard) && newBoard.length === 8) {
+                board = newBoard.map(row => [...row]);
+                turn = newTurn;
+                let p1 = 0, p2 = 0;
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        if (board[r][c] > 0) p1++;
+                        else if (board[r][c] < 0) p2++;
+                    }
+                }
+                p1Count = p1;
+                p2Count = p2;
+                selectedPiece = null;
+                validMoves = [];
+                scanMandatoryCaptures();
+                updateHUD();
+                render();
+            }
+        },
         checkCpuTurn() {
             if (turn === -1 && gameStateManager.gameMode === 'vs-cpu') {
                 cpuMakeDecision();
@@ -3364,6 +3504,7 @@ function createGame() {
         }
     };
 }
+window.createGame = createGame;
 
 // ==========================================
 // 🎉 GAME OVER SCREENS REDESIGN HELPERS
@@ -6349,8 +6490,9 @@ function setupSettingsPanel() {
         });
     }
 
-    // INITIAL RUN: Populate configuration
+    // INITIAL RUN: Populate configuration and Online UI
     loadAllSettingsIntoUI();
+    initOnlineUI();
 }
 
 // ==========================================================================

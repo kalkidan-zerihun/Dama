@@ -72,6 +72,9 @@
                 <!-- ▶ Start Game Button -->
                 <button id="start-game-btn" class="main-action-btn pulse-glow" data-i18n="menu_start_game">▶ Start Game</button>
 
+                <!-- 🌐 Play Online Button -->
+                <button id="menu-play-online-btn" class="main-action-btn online-btn" style="background: linear-gradient(135deg, #1e3a8a, #2563eb); border: 2px solid #60a5fa; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4); font-family: 'Cinzel', serif; font-weight: 700;">🌐 PLAY ONLINE</button>
+
                 <!-- Game Mode Selector -->
                 <div class="premium-mode-container">
                     <div class="toggle-buttons" id="mode-selector">
@@ -93,6 +96,7 @@
                 <!-- Secondary Premium Actions -->
                 <div class="menu-secondary-grid">
                     <button id="daily-challenge-btn" class="menu-secondary-btn" data-i18n="menu_daily_challenge">👑 Daily Challenge</button>
+                    <button id="menu-leaderboard-btn" class="menu-secondary-btn">🏆 Global Leaderboard</button>
                     <button id="menu-how-to-play-btn" class="menu-secondary-btn" data-i18n="menu_how_to_play">📖 How to Play</button>
                     <button id="menu-settings-btn" class="menu-secondary-btn" data-i18n="menu_settings">⚙ Settings</button>
                 </div>
@@ -504,8 +508,16 @@
                     
                     <!-- 4. GAMEPLAY TAB -->
                     <div class="settings-pane" id="pane-gameplay">
-                        <h3 class="pane-title">Gameplay</h3>
+                        <h3 class="pane-title">Gameplay & Online Profile</h3>
                         
+                        <div class="settings-group-block" style="margin-bottom: 20px; background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(96, 165, 250, 0.3); padding: 14px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <label class="setting-label-bold" style="color: #60a5fa; margin-bottom: 2px;">ONLINE USERNAME</label>
+                                <span id="settings-current-username" style="font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: #fff;">@username</span>
+                            </div>
+                            <button id="settings-change-username-btn" class="tutorial-btn primary" style="padding: 8px 14px; font-size: 0.85rem; border-radius: 8px;">Change</button>
+                        </div>
+
                         <div class="settings-group-block" style="margin-bottom: 20px;">
                             <label class="setting-label-bold">AI DIFFICULTY</label>
                             <div class="toggle-buttons-bar" id="ai-strength-bar">
@@ -855,6 +867,303 @@
                 <div style="margin-top: 24px; display: flex; gap: 12px; width: 100%;">
                     <button id="daily-solved-menu-btn" class="tutorial-btn secondary" style="flex: 1; padding: 12px; border-radius: 12px; font-weight: 700;">🏠 Main Menu</button>
                     <button id="daily-solved-next-btn" class="tutorial-btn primary" style="flex: 1; padding: 12px; border-radius: 12px; font-weight: 700;">👑 Puzzles</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 👤 USERNAME SETUP MODAL -->
+    <div id="username-setup-modal" class="modal">
+        <div class="modal-dialog" style="max-width: 460px; width: 94%; background: linear-gradient(145deg, rgba(20, 15, 10, 0.98), rgba(10, 7, 4, 0.99)); border: 2px solid #ffd700; border-radius: 20px; box-shadow: 0 16px 50px rgba(0, 0, 0, 0.85);">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255, 215, 0, 0.25); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;">
+                <h3 id="username-modal-title" style="font-family: 'Cinzel', serif; color: #ffd700; margin: 0; font-size: 1.2rem; font-weight: 700;">WELCOME TO DAMMA ONLINE</h3>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <p style="font-size: 0.88rem; color: #e2e8f0; margin-bottom: 16px; line-height: 1.5;">Choose a unique username to represent you in Ethiopian Damma online multiplayer matches and global rankings.</p>
+                
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.75rem; color: #ffd700; font-family: 'Cinzel', serif; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">YOUR USERNAME</label>
+                    <input type="text" id="username-input" placeholder="e.g. Axum_King99" maxlength="15" style="width: 100%; box-sizing: border-box; padding: 12px 14px; background: rgba(0, 0, 0, 0.6); border: 1.5px solid rgba(255, 215, 0, 0.4); border-radius: 10px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; outline: none;" />
+                </div>
+
+                <p id="username-validation-msg" style="font-size: 0.82rem; min-height: 20px; color: rgba(255, 255, 255, 0.7); margin-bottom: 16px; line-height: 1.4;"></p>
+
+                <div style="display: flex; gap: 10px;">
+                    <button id="username-save-btn" class="tutorial-btn primary" style="width: 100%; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 0.95rem;">Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🌐 PLAY ONLINE CHOICE MODAL -->
+    <div id="play-online-modal" class="modal">
+        <div class="modal-dialog" style="max-width: 480px; width: 94%; background: linear-gradient(145deg, rgba(20, 15, 10, 0.98), rgba(10, 7, 4, 0.99)); border: 2px solid #3b82f6; border-radius: 20px; box-shadow: 0 16px 50px rgba(37, 99, 235, 0.35);">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(59, 130, 246, 0.3); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3 style="font-family: 'Cinzel', serif; color: #60a5fa; margin: 0; font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px;">🌐 DAMMA MULTIPLAYER</h3>
+                    <span id="choice-my-username" style="font-size: 0.8rem; color: #ffd700; font-weight: 600; display: inline-block; margin-top: 2px;">@username</span>
+                </div>
+                <button onclick="document.getElementById('play-online-modal').classList.remove('active')" class="settings-close-btn" aria-label="Close Modal">✕</button>
+            </div>
+            <div class="modal-body" style="padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+                <p style="font-size: 0.88rem; color: #e2e8f0; margin: 0; line-height: 1.5;">Choose how you would like to start your online Ethiopian Damma match:</p>
+
+                <button id="online-choice-username-btn" class="online-mode-card username-mode">
+                    <div class="card-icon-box">🎯</div>
+                    <div style="flex: 1;">
+                        <strong style="font-family: 'Cinzel', serif; font-size: 1.05rem; color: #ffffff; display: block; margin-bottom: 4px; letter-spacing: 0.5px;">Play by Username</strong>
+                        <span style="font-size: 0.82rem; color: #bfdbfe; font-weight: 400; line-height: 1.4; display: block;">Search for an opponent by their exact username and send a direct game invite.</span>
+                    </div>
+                    <div class="card-arrow">➔</div>
+                </button>
+
+                <button id="online-choice-random-btn" class="online-mode-card random-mode">
+                    <div class="card-icon-box">🎲</div>
+                    <div style="flex: 1;">
+                        <strong style="font-family: 'Cinzel', serif; font-size: 1.05rem; color: #ffffff; display: block; margin-bottom: 4px; letter-spacing: 0.5px;">Random Matchmaking</strong>
+                        <span style="font-size: 0.82rem; color: #fef08a; font-weight: 400; line-height: 1.4; display: block;">Instantly search and automatically pair with any available online player worldwide.</span>
+                    </div>
+                    <div class="card-arrow">➔</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🎯 SEARCH USERNAME MODAL -->
+    <div id="search-username-modal" class="modal">
+        <div class="modal-dialog" style="max-width: 460px; width: 94%; background: linear-gradient(145deg, rgba(20, 15, 10, 0.98), rgba(10, 7, 4, 0.99)); border: 2px solid #2563eb; border-radius: 20px; box-shadow: 0 16px 50px rgba(37, 99, 235, 0.35);">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(37, 99, 235, 0.3); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-family: 'Cinzel', serif; color: #60a5fa; margin: 0; font-size: 1.2rem; font-weight: 700;">🎯 INVITE PLAYER BY USERNAME</h3>
+                <button onclick="document.getElementById('search-username-modal').classList.remove('active')" class="settings-close-btn" aria-label="Close Modal">✕</button>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <p style="font-size: 0.88rem; color: #e2e8f0; margin-bottom: 16px; line-height: 1.5;">Enter the exact username of the player you wish to invite to a live Ethiopian Damma match.</p>
+
+                <div style="margin-bottom: 14px;">
+                    <label style="display: block; font-size: 0.75rem; color: #60a5fa; font-family: 'Cinzel', serif; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">OPPONENT USERNAME</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="search-user-input" placeholder="e.g. Axum_King99" style="flex: 1; box-sizing: border-box; padding: 12px 14px; background: rgba(0, 0, 0, 0.6); border: 1.5px solid rgba(96, 165, 250, 0.5); border-radius: 10px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; outline: none;" />
+                        <button id="search-user-btn" class="tutorial-btn primary" style="padding: 12px 20px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; background: #2563eb; border-color: #60a5fa;">Search</button>
+                    </div>
+                </div>
+
+                <p id="search-user-msg" style="font-size: 0.85rem; min-height: 20px; color: #ffd700; margin-bottom: 16px; word-break: break-word; line-height: 1.4;"></p>
+
+                <button id="cancel-user-search-btn" class="tutorial-btn secondary" style="width: 100%; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 0.9rem;">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🎲 RANDOM MATCHMAKING SEARCH MODAL -->
+    <div id="random-match-modal" class="modal">
+        <div class="modal-dialog" style="max-width: 420px; width: 94%; background: linear-gradient(145deg, rgba(20, 15, 10, 0.98), rgba(10, 7, 4, 0.99)); border: 2px solid #ca8a04; border-radius: 20px; text-align: center; box-shadow: 0 16px 50px rgba(202, 138, 4, 0.35);">
+            <div class="modal-body" style="padding: 28px 20px;">
+                <div style="font-size: 2.8rem; margin-bottom: 10px; display: inline-block;">🎲</div>
+                <h3 style="font-family: 'Cinzel', serif; color: #fde047; margin: 0 0 8px 0; font-size: 1.25rem; font-weight: 700;">RANDOM MATCHMAKING</h3>
+                <p id="random-match-status-text" style="font-size: 0.9rem; color: #e2e8f0; margin-bottom: 20px; line-height: 1.4;">Searching for an available opponent online...</p>
+                <button id="cancel-random-match-btn" class="tutorial-btn secondary" style="padding: 12px 24px; border-radius: 10px; font-weight: 700; font-size: 0.9rem;">Cancel Search</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📩 INCOMING INVITATION POPUP -->
+    <div id="incoming-invitation-modal" class="modal">
+        <div class="modal-dialog" style="max-width: 420px; width: 94%; background: linear-gradient(145deg, rgba(20, 15, 10, 0.98), rgba(10, 7, 4, 0.99)); border: 2px solid #ffd700; border-radius: 18px; box-shadow: 0 12px 40px rgba(255, 215, 0, 0.4); text-align: center;">
+            <div class="modal-body" style="padding: 20px 16px;">
+                <div style="font-size: 2rem; margin-bottom: 6px;">⚔️</div>
+                <h3 style="font-family: 'Cinzel', serif; color: #ffd700; margin: 0 0 6px 0; font-size: 1.1rem;">GAME CHALLENGE</h3>
+                <p id="invitation-from-text" style="font-size: 0.88rem; color: #fff; margin-bottom: 16px; line-height: 1.4;">Player username invited you to an online match!</p>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button id="decline-invitation-btn" class="tutorial-btn secondary" style="flex: 1; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 0.88rem;">Decline</button>
+                    <button id="accept-invitation-btn" class="tutorial-btn primary" style="flex: 1; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 0.88rem; background: #10b981; border-color: #34d399;">Accept Match</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🏆 ONLINE GAME OVER MODAL -->
+    <div id="online-gameover-modal" class="modal">
+        <div class="modal-dialog" style="max-width: 480px; width: 94%; background: linear-gradient(145deg, rgba(20, 15, 10, 0.98), rgba(10, 7, 4, 0.99)); border: 2px solid #ffd700; border-radius: 20px; text-align: center; box-shadow: 0 12px 40px rgba(255, 215, 0, 0.4); max-height: 90vh; overflow-y: auto;">
+            <div class="modal-body" style="padding: 24px 20px;">
+                <div id="online-gameover-icon" style="font-size: 2.8rem; margin-bottom: 4px; line-height: 1;">🏆</div>
+                <h3 id="online-gameover-title" style="font-family: 'Cinzel', serif; color: #ffd700; margin: 0 0 4px 0; font-size: 1.35rem; font-weight: 700;">RANKED MATCH ENDED</h3>
+                <p id="online-gameover-desc" style="font-size: 0.85rem; color: #d1d5db; margin-bottom: 16px;">Ethiopian Damma Competitive Match Result</p>
+
+                <!-- Match Players Summary -->
+                <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,215,0,0.25); border-radius: 12px; padding: 12px; margin-bottom: 16px; display: flex; justify-content: space-around; align-items: center;">
+                    <div style="text-align: center;">
+                        <span id="gameover-winner-label" style="font-size: 0.72rem; color: #10b981; font-family: 'Cinzel', serif; display: block; letter-spacing: 1px;">WINNER</span>
+                        <strong id="gameover-winner-name" style="font-size: 0.95rem; color: #fff;">Player 1</strong>
+                    </div>
+                    <div style="font-family: 'Cinzel', serif; font-size: 0.85rem; color: rgba(255,255,255,0.4);">VS</div>
+                    <div style="text-align: center;">
+                        <span id="gameover-loser-label" style="font-size: 0.72rem; color: #ef4444; font-family: 'Cinzel', serif; display: block; letter-spacing: 1px;">LOSER</span>
+                        <strong id="gameover-loser-name" style="font-size: 0.95rem; color: #aaa;">Player 2</strong>
+                    </div>
+                </div>
+                
+                <!-- Rating Change Card -->
+                <div style="background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(0,0,0,0.6)); border: 1.5px solid rgba(255,215,0,0.4); border-radius: 14px; padding: 14px; margin-bottom: 16px; text-align: center;">
+                    <span style="font-size: 0.75rem; color: #ffd700; font-family: 'Cinzel', serif; letter-spacing: 1px; display: block; margin-bottom: 6px;">YOUR RATING ADJUSTMENT</span>
+                    
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 14px; margin-bottom: 8px;">
+                        <span id="gameover-prev-rating" style="font-size: 1.1rem; color: #aaa; text-decoration: line-through;">1200</span>
+                        <span style="font-size: 1.2rem; color: #ffd700;">➔</span>
+                        <span id="gameover-new-rating" style="font-size: 1.4rem; font-weight: 700; color: #fff;">1218</span>
+                        <span id="gameover-rating-delta" style="font-size: 0.9rem; font-weight: 700; padding: 3px 8px; border-radius: 8px; background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981;">+18</span>
+                    </div>
+
+                    <div id="gameover-fairplay-msg" style="font-size: 0.75rem; color: #f59e0b; display: none; margin-top: 4px;">Unrated Match</div>
+                </div>
+
+                <!-- Career Quick Stats -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px;">
+                    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 4px;">
+                        <span style="font-size: 0.68rem; color: #10b981; display: block;">WINS</span>
+                        <strong id="gameover-total-wins" style="font-size: 0.95rem; color: #fff;">0</strong>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 4px;">
+                        <span style="font-size: 0.68rem; color: #ef4444; display: block;">LOSSES</span>
+                        <strong id="gameover-total-losses" style="font-size: 0.95rem; color: #fff;">0</strong>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 4px;">
+                        <span style="font-size: 0.68rem; color: #f59e0b; display: block;">DRAWS</span>
+                        <strong id="gameover-total-draws" style="font-size: 0.95rem; color: #fff;">0</strong>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 4px;">
+                        <span style="font-size: 0.68rem; color: #60a5fa; display: block;">RANK</span>
+                        <strong id="gameover-global-rank" style="font-size: 0.95rem; color: #ffd700;">#--</strong>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button id="online-gameover-menu-btn" class="tutorial-btn secondary" style="flex: 1; padding: 11px; border-radius: 10px; font-weight: 700; font-size: 0.88rem;">🏠 Main Menu</button>
+                    <button id="online-play-again-btn" class="tutorial-btn primary" style="flex: 1; padding: 11px; border-radius: 10px; font-weight: 700; font-size: 0.88rem;">🔄 Play Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🏆 GLOBAL LEADERBOARD MODAL -->
+    <div id="leaderboard-modal" class="modal">
+        <div class="modal-dialog" style="max-width: 640px; width: 95%; background: linear-gradient(145deg, rgba(20, 15, 10, 0.98), rgba(10, 7, 4, 0.99)); border: 2px solid #7c3aed; border-radius: 20px; box-shadow: 0 16px 50px rgba(124, 58, 237, 0.4); max-height: 90vh; display: flex; flex-direction: column;">
+            
+            <div class="modal-header" style="border-bottom: 1px solid rgba(124, 58, 237, 0.3); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.6rem;">🏆</span>
+                    <div>
+                        <h3 style="font-family: 'Cinzel', serif; color: #c084fc; margin: 0; font-size: 1.2rem; font-weight: 700;">GLOBAL LEADERBOARD</h3>
+                        <span style="font-size: 0.75rem; color: #a78bfa; letter-spacing: 0.5px;">Real-time competitive Ethiopian Dama rankings</span>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('leaderboard-modal').classList.remove('active')" class="settings-close-btn" aria-label="Close Leaderboard">✕</button>
+            </div>
+
+            <!-- Logged-in Player Banner -->
+            <div id="leaderboard-my-banner" style="background: rgba(124, 58, 237, 0.15); border-bottom: 1px solid rgba(124, 58, 237, 0.25); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div id="lb-my-avatar" style="width: 36px; height: 36px; border-radius: 50%; background: #7c3aed; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; border: 1.5px solid #c084fc;">U</div>
+                    <div>
+                        <span id="lb-my-name" style="font-size: 0.9rem; font-weight: 700; color: #fff; display: block;">@You</span>
+                        <span id="lb-my-tier-badge" style="font-size: 0.72rem; color: #ffd700; font-weight: 600;">🥈 Silver</span>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <span id="lb-my-rating" style="font-size: 1.1rem; font-weight: 700; color: #c084fc;">1200 Rating</span>
+                    <span id="lb-my-rank" style="font-size: 0.75rem; color: #d1d5db; display: block;">Rank #--</span>
+                </div>
+            </div>
+
+            <!-- Search Player Bar -->
+            <div style="padding: 12px 20px 8px 20px; background: rgba(0,0,0,0.3);">
+                <div style="display: flex; gap: 8px; position: relative;">
+                    <input type="text" id="lb-search-input" placeholder="🔍 Search player by username..." style="flex: 1; box-sizing: border-box; padding: 9px 14px; background: rgba(0, 0, 0, 0.5); border: 1.5px solid rgba(167, 139, 250, 0.4); border-radius: 10px; color: #fff; font-size: 0.88rem; outline: none;" />
+                    <button id="lb-search-btn" class="tutorial-btn primary" style="padding: 9px 16px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; background: #7c3aed; border-color: #a78bfa;">Search</button>
+                </div>
+                <!-- Search suggestions dropdown -->
+                <div id="lb-search-results" style="display: none; background: #18122b; border: 1px solid #7c3aed; border-radius: 10px; margin-top: 6px; max-height: 180px; overflow-y: auto; z-index: 100;"></div>
+            </div>
+
+            <!-- Leaderboard Table Header -->
+            <div style="display: grid; grid-template-columns: 50px 1fr 100px 100px; padding: 8px 20px; background: rgba(0,0,0,0.6); font-family: 'Cinzel', serif; font-size: 0.72rem; color: #a78bfa; border-bottom: 1px solid rgba(255,255,255,0.05); font-weight: 700;">
+                <div>RANK</div>
+                <div>PLAYER</div>
+                <div style="text-align: center;">RATING</div>
+                <div style="text-align: right;">W / L (WIN %)</div>
+            </div>
+
+            <!-- Leaderboard Rows Container -->
+            <div id="leaderboard-rows-container" style="flex: 1; overflow-y: auto; padding: 0 10px; min-height: 250px;">
+                <div id="leaderboard-loading" style="text-align: center; padding: 40px 20px; color: #a78bfa; font-size: 0.9rem;">
+                    Loading live rankings from Firebase...
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 👤 PLAYER PROFILE MODAL -->
+    <div id="player-profile-modal" class="modal">
+        <div class="modal-dialog" style="max-width: 520px; width: 94%; background: linear-gradient(145deg, rgba(20, 15, 10, 0.98), rgba(10, 7, 4, 0.99)); border: 2px solid #ffd700; border-radius: 20px; box-shadow: 0 16px 50px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto;">
+            
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255, 215, 0, 0.25); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-family: 'Cinzel', serif; color: #ffd700; margin: 0; font-size: 1.15rem;">PLAYER PROFILE</h3>
+                <button onclick="document.getElementById('player-profile-modal').classList.remove('active')" class="settings-close-btn" aria-label="Close Profile">✕</button>
+            </div>
+
+            <div class="modal-body" style="padding: 20px;">
+                <!-- Profile Header Card -->
+                <div style="display: flex; align-items: center; gap: 14px; background: rgba(0,0,0,0.5); border: 1.5px solid rgba(255,215,0,0.3); border-radius: 14px; padding: 16px; margin-bottom: 18px;">
+                    <div id="profile-avatar" style="width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, #b45309, #d97706); color: #fff; font-size: 1.4rem; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 2px solid #ffd700; box-shadow: 0 0 12px rgba(255,215,0,0.3);">P</div>
+                    
+                    <div style="flex: 1;">
+                        <h4 id="profile-username" style="font-family: 'Cinzel', serif; font-size: 1.15rem; color: #fff; margin: 0 0 2px 0;">Username</h4>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="profile-tier-badge" style="font-size: 0.78rem; padding: 2px 8px; border-radius: 6px; background: rgba(255,215,0,0.15); color: #ffd700; font-weight: 600; border: 1px solid rgba(255,215,0,0.3);">🥈 Silver</span>
+                            <span id="profile-global-rank" style="font-size: 0.75rem; color: #aaa;">Global Rank #--</span>
+                        </div>
+                    </div>
+
+                    <div style="text-align: right;">
+                        <span style="font-size: 0.68rem; color: #aaa; display: block;">RATING</span>
+                        <strong id="profile-rating" style="font-size: 1.3rem; color: #ffd700; font-weight: 700;">1200</strong>
+                    </div>
+                </div>
+
+                <!-- Comprehensive Stats Grid -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; text-align: center;">
+                        <span style="font-size: 0.68rem; color: #aaa; display: block;">HIGHEST RATING</span>
+                        <strong id="profile-highest-rating" style="font-size: 1.05rem; color: #ffd700;">1200</strong>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; text-align: center;">
+                        <span style="font-size: 0.68rem; color: #aaa; display: block;">WIN RATE</span>
+                        <strong id="profile-win-pct" style="font-size: 1.05rem; color: #10b981;">0%</strong>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; text-align: center;">
+                        <span style="font-size: 0.68rem; color: #aaa; display: block;">TOTAL GAMES</span>
+                        <strong id="profile-total-games" style="font-size: 1.05rem; color: #60a5fa;">0</strong>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; text-align: center;">
+                        <span style="font-size: 0.68rem; color: #aaa; display: block;">RECORD (W/L/D)</span>
+                        <strong id="profile-record" style="font-size: 0.9rem; color: #fff;">0 / 0 / 0</strong>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; text-align: center;">
+                        <span style="font-size: 0.68rem; color: #aaa; display: block;">CURRENT STREAK</span>
+                        <strong id="profile-current-streak" style="font-size: 1.05rem; color: #f59e0b;">0</strong>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; text-align: center;">
+                        <span style="font-size: 0.68rem; color: #aaa; display: block;">BEST STREAK</span>
+                        <strong id="profile-best-streak" style="font-size: 1.05rem; color: #a855f7;">0</strong>
+                    </div>
+                </div>
+
+                <!-- Recent Ranked Match History -->
+                <h4 style="font-family: 'Cinzel', serif; color: #ffd700; font-size: 0.95rem; margin: 0 0 10px 0; letter-spacing: 0.5px;">RECENT MATCH HISTORY</h4>
+                
+                <div id="profile-match-history" style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 8px;">
+                    <div style="text-align: center; color: #aaa; font-size: 0.8rem; padding: 20px;">No match history found.</div>
                 </div>
             </div>
         </div>

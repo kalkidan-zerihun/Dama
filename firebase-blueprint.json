@@ -1,0 +1,120 @@
+{
+  "entities": {
+    "users": {
+      "title": "Users",
+      "description": "User profiles, presence status, and competitive ranking statistics",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "username": { "type": "string" },
+        "usernameLower": { "type": "string" },
+        "status": { "type": "string" },
+        "rating": { "type": "number" },
+        "wins": { "type": "number" },
+        "losses": { "type": "number" },
+        "draws": { "type": "number" },
+        "totalGames": { "type": "number" },
+        "winPercentage": { "type": "number" },
+        "currentStreak": { "type": "number" },
+        "highestStreak": { "type": "number" },
+        "highestRating": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "lastSeen": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "username", "usernameLower"]
+    },
+    "usernames": {
+      "title": "Usernames",
+      "description": "Unique username registry keyed by lowercased username",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "username": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "username"]
+    },
+    "matchmaking": {
+      "title": "Matchmaking Queue",
+      "description": "Queue entries for random online matchmaking",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "username": { "type": "string" },
+        "status": { "type": "string" },
+        "roomId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "username", "status"]
+    },
+    "invitations": {
+      "title": "Invitations",
+      "description": "Direct player game invitations",
+      "type": "object",
+      "properties": {
+        "fromUid": { "type": "string" },
+        "fromUsername": { "type": "string" },
+        "toUid": { "type": "string" },
+        "toUsername": { "type": "string" },
+        "toUsernameLower": { "type": "string" },
+        "status": { "type": "string" },
+        "roomId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fromUid", "fromUsername", "toUid", "toUsername", "status"]
+    },
+    "rooms": {
+      "title": "Game Rooms",
+      "description": "Multiplayer online match room state",
+      "type": "object",
+      "properties": {
+        "roomId": { "type": "string" },
+        "player1Uid": { "type": "string" },
+        "player1Username": { "type": "string" },
+        "player2Uid": { "type": "string" },
+        "player2Username": { "type": "string" },
+        "currentTurn": { "type": "number" },
+        "board": { "type": "string" },
+        "p1Count": { "type": "number" },
+        "p2Count": { "type": "number" },
+        "totalMoves": { "type": "number" },
+        "status": { "type": "string" },
+        "winnerUid": { "type": "string" },
+        "winReason": { "type": "string" },
+        "ratingProcessed": { "type": "boolean" },
+        "p1RatingChange": { "type": "number" },
+        "p2RatingChange": { "type": "number" },
+        "p1NewRating": { "type": "number" },
+        "p2NewRating": { "type": "number" },
+        "p1OldRating": { "type": "number" },
+        "p2OldRating": { "type": "number" },
+        "rematchRequestedBy": { "type": "array", "items": { "type": "string" } },
+        "player1DisconnectedAt": { "type": "number" },
+        "player2DisconnectedAt": { "type": "number" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["roomId", "player1Uid", "player2Uid", "board", "status"]
+    },
+    "matches": {
+      "title": "Match History",
+      "description": "Historical records of completed ranked matches",
+      "type": "object",
+      "properties": {
+        "matchId": { "type": "string" },
+        "roomId": { "type": "string" },
+        "playerUid": { "type": "string" },
+        "opponentUid": { "type": "string" },
+        "opponentUsername": { "type": "string" },
+        "result": { "type": "string" },
+        "ratingBefore": { "type": "number" },
+        "ratingAfter": { "type": "number" },
+        "ratingChange": { "type": "number" },
+        "totalMoves": { "type": "number" },
+        "winReason": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["matchId", "roomId", "playerUid", "opponentUid", "result"]
+    }
+  }
+}

@@ -3448,6 +3448,82 @@ input:checked + .red-slider:before {
     font-size: 0.72rem !important;
 }
 
+.menu-secondary-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+/* 🌐 Online Mode Card Option Styling */
+.online-mode-card {
+    width: 100%;
+    padding: 16px 18px;
+    border-radius: 14px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+    outline: none;
+    border: 1.5px solid transparent;
+}
+
+.online-mode-card.username-mode {
+    background: linear-gradient(135deg, rgba(26, 54, 136, 0.95), rgba(37, 99, 235, 0.85));
+    border-color: #60a5fa;
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+}
+
+.online-mode-card.username-mode:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, rgba(30, 64, 160, 0.98), rgba(59, 130, 246, 0.95));
+    border-color: #93c5fd;
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
+}
+
+.online-mode-card.random-mode {
+    background: linear-gradient(135deg, rgba(120, 53, 15, 0.95), rgba(217, 119, 6, 0.85));
+    border-color: #fbbf24;
+    box-shadow: 0 4px 20px rgba(217, 119, 6, 0.3);
+}
+
+.online-mode-card.random-mode:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, rgba(146, 64, 14, 0.98), rgba(245, 158, 11, 0.95));
+    border-color: #fef08a;
+    box-shadow: 0 8px 25px rgba(217, 119, 6, 0.5);
+}
+
+.online-mode-card .card-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.2);
+}
+
+.online-mode-card .card-arrow {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.7);
+    transition: transform 0.2s, color 0.2s;
+    margin-left: auto;
+}
+
+.online-mode-card:hover .card-arrow {
+    transform: translateX(4px);
+    color: #ffffff;
+}
+
 /* Secondary Button list */
 .menu-secondary-btn {
     width: 100%;
@@ -4279,6 +4355,9 @@ input:checked + .red-slider:before {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 12px;
+    box-sizing: border-box;
+    overflow-y: auto;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -4292,6 +4371,16 @@ input:checked + .red-slider:before {
 }
 
 .modal .modal-dialog {
+    max-height: min(90vh, calc(100vh - 24px));
+    max-width: 440px;
+    width: 94%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    box-sizing: border-box;
+    margin: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 215, 0, 0.3) transparent;
     transform: translateY(20px) scale(0.96);
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
