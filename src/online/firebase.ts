@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, User } from 'firebase/auth';
-import { initializeFirestore, Firestore } from 'firebase/firestore';
+import { initializeFirestore, getFirestore, Firestore } from 'firebase/firestore';
 import config from '../../firebase-applet-config.json';
 
 // Initialize Firebase App
@@ -9,7 +9,7 @@ const app = getApps().length > 0 ? getApp() : initializeApp(config);
 // Auth instance
 export const auth = getAuth(app);
 
-// Firestore instance with custom database ID support
+// Firestore instance with custom database ID support and long polling fallback
 const dbId = config.firestoreDatabaseId && config.firestoreDatabaseId !== '(default)' 
   ? config.firestoreDatabaseId 
   : '(default)';

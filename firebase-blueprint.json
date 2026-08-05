@@ -63,6 +63,19 @@
       },
       "required": ["fromUid", "fromUsername", "toUid", "toUsername", "status"]
     },
+    "messages": {
+      "title": "Chat Messages",
+      "description": "Real-time in-game chat messages for online matches",
+      "type": "object",
+      "properties": {
+        "senderUid": { "type": "string" },
+        "senderUsername": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["senderUid", "senderUsername", "text", "timestamp"]
+    },
     "rooms": {
       "title": "Game Rooms",
       "description": "Multiplayer online match room state",

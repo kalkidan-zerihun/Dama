@@ -1,7 +1,10 @@
 import { 
   getSavedUsername, setUsername, validateUsernameFormat, 
-  initPresence, updatePresenceStatus 
+  initPresence, updatePresenceStatus, getUserAvatarUrl,
+  getSavedDisplayName, getSavedPhotoURL, getSavedFavoriteRule,
+  updateUserProfile, validateDisplayNameFormat, getUserProfile
 } from './userService';
+import { validateImageFile, ImageCropper } from './imageCropper';
 import { 
   invitePlayerByUsername, listenToSentInvitation, cancelSentInvitation, 
   listenForIncomingInvitations, acceptInvitation, declineInvitation, 
@@ -16,6 +19,7 @@ import {
   getUserRankProfile, getUserGlobalRank, getUserMatchHistory,
   searchPlayersByUsername, UserRankProfile, MatchHistoryItem
 } from './rankingService';
+import { initChatUI, cleanupChatUI } from './chatUI';
 
 function playSound(soundName: string) {
   if (typeof (window as any).SoundSystem?.play === 'function') {
@@ -239,6 +243,129 @@ export function initOnlineUI() {
     });
   }
 
+  // 9. Edit Profile Modal Controls
+  const uploadBtn = document.getElementById('edit-avatar-upload-btn');
+  const removeBtn = document.getElementById('edit-avatar-remove-btn');
+  const fileInput = document.getElementById('avatar-file-input') as HTMLInputElement;
+  const saveProfileBtn = document.getElementById('edit-profile-save-btn');
+  const cancelProfileBtn = document.getElementById('edit-profile-cancel-btn');
+  const msgEl = document.getElementById('edit-profile-msg');
+
+  if (uploadBtn && fileInput) {
+    uploadBtn.addEventListener('click', () => {
+      playSound('click');
+      fileInput.value = '';
+      fileInput.click();
+    });
+  }
+
+  if (fileInput) {
+    fileInput.addEventListener('change', (e: Event) => {
+      const files = (e.target as HTMLInputElement).files;
+      if (!files || files.length === 0) return;
+      const file = files[0];
+
+      const validation = validateImageFile(file);
+      if (!validation.valid) {
+        if (msgEl) {
+          msgEl.textContent = validation.message;
+          msgEl.style.color = '#ef4444';
+        }
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const dataUrl = evt.target?.result as string;
+        if (!dataUrl) return;
+        showCropModal(dataUrl);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (removeBtn) {
+    removeBtn.addEventListener('click', () => {
+      playSound('click');
+      activeCroppedPhotoDataUrl = '';
+      const previewImg = document.getElementById('edit-avatar-preview') as HTMLImageElement;
+      const dnInput = document.getElementById('edit-displayname-input') as HTMLInputElement;
+      const unInput = document.getElementById('edit-username-input') as HTMLInputElement;
+
+      const dn = dnInput?.value || getSavedDisplayName();
+      const un = unInput?.value || getSavedUsername();
+
+      if (previewImg) {
+        previewImg.src = getUserAvatarUrl({ photoURL: '', displayName: dn, username: un });
+      }
+
+      if (msgEl) {
+        msgEl.textContent = 'Avatar image removed. Reverted to default avatar.';
+        msgEl.style.color = '#10b981';
+      }
+    });
+  }
+
+  if (saveProfileBtn) {
+    saveProfileBtn.addEventListener('click', async () => {
+      playSound('click');
+      const dnInput = document.getElementById('edit-displayname-input') as HTMLInputElement;
+      const unInput = document.getElementById('edit-username-input') as HTMLInputElement;
+      const ruleSelect = document.getElementById('edit-favoriterule-select') as HTMLSelectElement;
+
+      const dn = dnInput ? dnInput.value.trim() : '';
+      const un = unInput ? unInput.value.trim() : '';
+      const rule = ruleSelect ? ruleSelect.value : 'Ethiopian Damma (Forced Capture)';
+
+      const dnRes = validateDisplayNameFormat(dn);
+      if (!dnRes.valid) {
+        if (msgEl) {
+          msgEl.textContent = dnRes.message;
+          msgEl.style.color = '#ef4444';
+        }
+        return;
+      }
+
+      saveProfileBtn.textContent = 'Saving Changes...';
+
+      const result = await updateUserProfile({
+        displayName: dn,
+        username: un,
+        photoURL: activeCroppedPhotoDataUrl !== null ? activeCroppedPhotoDataUrl : getSavedPhotoURL(),
+        favoriteRule: rule
+      });
+
+      saveProfileBtn.textContent = 'Save Changes';
+
+      if (result.success) {
+        if (msgEl) {
+          msgEl.textContent = 'Profile updated successfully!';
+          msgEl.style.color = '#10b981';
+        }
+
+        updateSettingsUsernameDisplay();
+        
+        setTimeout(() => {
+          hideModal('edit-profile-modal');
+          const user = getCurrentUser();
+          if (user) {
+            openPlayerProfileModal(user.uid);
+          }
+        }, 800);
+      } else if (msgEl) {
+        msgEl.textContent = result.message;
+        msgEl.style.color = '#ef4444';
+      }
+    });
+  }
+
+  if (cancelProfileBtn) {
+    cancelProfileBtn.addEventListener('click', () => {
+      playSound('click');
+      hideModal('edit-profile-modal');
+    });
+  }
+
   // Update Settings display on boot
   updateSettingsUsernameDisplay();
 }
@@ -313,24 +440,25 @@ function renderLeaderboardList(players: UserRankProfile[]) {
     else if (pos === 2) posDisplay = '🥈 2';
     else if (pos === 3) posDisplay = '🥉 3';
 
-    const initial = player.username.substring(0, 1).toUpperCase();
+    const dName = player.displayName || player.username || 'Player';
+    const avatarUrl = getUserAvatarUrl({ photoURL: player.photoURL, displayName: dName, username: player.username });
 
     html += `
-      <div class="lb-row" data-uid="${player.uid}" style="display: grid; grid-template-columns: 50px 1fr 100px 100px; padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.06); align-items: center; cursor: pointer; border-radius: 8px; margin-bottom: 2px; transition: background 0.2s; ${isMe ? 'background: rgba(124, 58, 237, 0.25); border: 1px solid #7c3aed;' : 'background: rgba(0,0,0,0.2);'}">
-        <div style="font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.95rem; color: ${pos <= 3 ? '#ffd700' : '#d1d5db'};">${posDisplay}</div>
+      <div class="lb-row" data-uid="${player.uid}" style="display: grid; grid-template-columns: 46px 1fr 90px 95px; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); align-items: center; cursor: pointer; border-radius: 10px; margin-bottom: 3px; transition: background 0.2s; ${isMe ? 'background: rgba(124, 58, 237, 0.25); border: 1.5px solid #7c3aed;' : 'background: rgba(0,0,0,0.25);'}">
+        <div style="font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.92rem; color: ${pos <= 3 ? '#ffd700' : '#d1d5db'};">${posDisplay}</div>
         
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <div style="width: 32px; height: 32px; border-radius: 50%; background: ${rankDetails.color}; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.4); flex-shrink: 0;">${initial}</div>
+        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+          <img src="${avatarUrl}" alt="${dName}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1.5px solid ${rankDetails.color}; flex-shrink: 0; background: #18122b;" />
           <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-            <span style="font-weight: 700; color: #fff; font-size: 0.9rem; display: block; overflow: hidden; text-overflow: ellipsis;">@${player.username} ${isMe ? '<span style="font-size: 0.7rem; color: #ffd700;">(You)</span>' : ''}</span>
-            <span style="font-size: 0.72rem; color: ${rankDetails.color}; font-weight: 600;">${rankDetails.badge} ${rankDetails.title}</span>
+            <span style="font-weight: 700; color: #fff; font-size: 0.92rem; display: block; overflow: hidden; text-overflow: ellipsis;">${dName} ${isMe ? '<span style="font-size: 0.72rem; color: #ffd700;">(You)</span>' : ''}</span>
+            <span style="font-size: 0.75rem; color: #94a3b8; font-family: 'JetBrains Mono', monospace; display: block;">@${player.username}</span>
           </div>
         </div>
 
-        <div style="text-align: center; font-weight: 700; color: #ffd700; font-size: 1rem;">${player.rating}</div>
+        <div style="text-align: center; font-weight: 700; color: #ffd700; font-size: 0.98rem;">${player.rating}</div>
 
         <div style="text-align: right;">
-          <span style="font-size: 0.82rem; color: #fff; font-weight: 600; display: block;">${player.wins}W / ${player.losses}L</span>
+          <span style="font-size: 0.8rem; color: #fff; font-weight: 600; display: block;">${player.wins}W / ${player.losses}L</span>
           <span style="font-size: 0.72rem; color: #10b981;">${player.winPercentage}% Win Rate</span>
         </div>
       </div>
@@ -391,11 +519,17 @@ function renderLeaderboardSearchResults(results: UserRankProfile[]) {
   });
 }
 
+let activeCroppedPhotoDataUrl: string | null = null;
+let activeImageCropper: ImageCropper | null = null;
+
 /**
  * Player Profile Modal logic
  */
 export async function openPlayerProfileModal(uid: string) {
   showModal('player-profile-modal');
+
+  const currentUser = getCurrentUser();
+  const isOwnProfile = currentUser?.uid === uid;
 
   const profile = await getUserRankProfile(uid);
   if (!profile) return;
@@ -403,36 +537,88 @@ export async function openPlayerProfileModal(uid: string) {
   const rank = await getUserGlobalRank(profile.rating);
   const rankDetails = getRankDetails(profile.rating);
 
-  const avatar = document.getElementById('profile-avatar');
-  const username = document.getElementById('profile-username');
-  const badge = document.getElementById('profile-tier-badge');
-  const globalRank = document.getElementById('profile-global-rank');
-  const rating = document.getElementById('profile-rating');
-  const highestRating = document.getElementById('profile-highest-rating');
-  const winPct = document.getElementById('profile-win-pct');
-  const totalGames = document.getElementById('profile-total-games');
-  const record = document.getElementById('profile-record');
-  const curStreak = document.getElementById('profile-current-streak');
-  const bestStreak = document.getElementById('profile-best-streak');
+  const avatarImg = document.getElementById('profile-avatar-img') as HTMLImageElement;
+  const displayNameEl = document.getElementById('profile-display-name');
+  const usernameTagEl = document.getElementById('profile-username-tag');
+  const badgeEl = document.getElementById('profile-tier-badge');
+  const globalRankEl = document.getElementById('profile-global-rank');
+  const ratingEl = document.getElementById('profile-rating');
+  const highestRatingEl = document.getElementById('profile-highest-rating');
+  const winPctEl = document.getElementById('profile-win-pct');
+  const totalGamesEl = document.getElementById('profile-total-games');
+  const recordEl = document.getElementById('profile-record');
+  const curStreakEl = document.getElementById('profile-current-streak');
+  const bestStreakEl = document.getElementById('profile-best-streak');
+  const favoriteRuleEl = document.getElementById('profile-favorite-rule');
+  const memberSinceEl = document.getElementById('profile-member-since');
+  const statusIndicatorEl = document.getElementById('profile-status-indicator');
+  const statusBadgeEl = document.getElementById('profile-status-badge');
+  const editBtnEl = document.getElementById('profile-open-edit-btn');
   const historyContainer = document.getElementById('profile-match-history');
 
-  if (avatar) avatar.textContent = profile.username.substring(0, 1).toUpperCase();
-  if (username) username.textContent = `@${profile.username}`;
-  if (badge) {
-    badge.textContent = `${rankDetails.badge} ${rankDetails.title}`;
-    badge.style.color = rankDetails.color;
-    badge.style.borderColor = rankDetails.color;
-  }
-  if (globalRank) globalRank.textContent = `Global Rank #${rank}`;
-  if (rating) rating.textContent = `${profile.rating}`;
-  if (highestRating) highestRating.textContent = `${profile.highestRating || profile.rating}`;
-  if (winPct) winPct.textContent = `${profile.winPercentage}%`;
-  if (totalGames) totalGames.textContent = `${profile.totalGames}`;
-  if (record) record.textContent = `${profile.wins}W / ${profile.losses}L / ${profile.draws}D`;
-  if (curStreak) curStreak.textContent = `${profile.currentStreak || 0}`;
-  if (bestStreak) bestStreak.textContent = `${profile.highestStreak || 0}`;
+  const dName = profile.displayName || profile.username || 'Player';
+  const avatarUrl = getUserAvatarUrl({ photoURL: profile.photoURL, displayName: dName, username: profile.username });
+  if (avatarImg) avatarImg.src = avatarUrl;
 
-  // Fetch match history
+  if (displayNameEl) displayNameEl.textContent = dName;
+  if (usernameTagEl) usernameTagEl.textContent = `@${profile.username}`;
+
+  if (badgeEl) {
+    badgeEl.textContent = `${rankDetails.badge} ${rankDetails.title}`;
+    badgeEl.style.color = rankDetails.color;
+    badgeEl.style.borderColor = rankDetails.color;
+  }
+  if (globalRankEl) globalRankEl.textContent = `Global Rank #${rank}`;
+  if (ratingEl) ratingEl.textContent = `${profile.rating}`;
+  if (highestRatingEl) highestRatingEl.textContent = `${profile.highestRating || profile.rating}`;
+  if (winPctEl) winPctEl.textContent = `${profile.winPercentage}%`;
+  if (totalGamesEl) totalGamesEl.textContent = `${profile.totalGames}`;
+  if (recordEl) recordEl.textContent = `${profile.wins}W / ${profile.losses}L / ${profile.draws}D`;
+  if (curStreakEl) curStreakEl.textContent = `${profile.currentStreak || 0}`;
+  if (bestStreakEl) bestStreakEl.textContent = `${profile.highestStreak || 0}`;
+
+  if (favoriteRuleEl) favoriteRuleEl.textContent = profile.favoriteRule || 'Ethiopian Damma (Forced Capture)';
+
+  // Member Since date
+  let dateStr = 'Aug 2026';
+  if (profile.createdAt?.toDate) {
+    const d = profile.createdAt.toDate();
+    dateStr = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  }
+  if (memberSinceEl) memberSinceEl.textContent = dateStr;
+
+  // Status dot & pill
+  const statusMap: Record<string, { label: string; class: string }> = {
+    online: { label: 'Online', class: 'online' },
+    searching: { label: 'Searching', class: 'searching' },
+    in_match: { label: 'In Match', class: 'in_match' },
+    offline: { label: 'Offline', class: 'offline' },
+    disconnected: { label: 'Disconnected', class: 'offline' }
+  };
+  const statusInfo = statusMap[profile.status] || { label: 'Online', class: 'online' };
+
+  if (statusIndicatorEl) {
+    statusIndicatorEl.className = `status-dot ${statusInfo.class}`;
+  }
+  if (statusBadgeEl) {
+    statusBadgeEl.className = `profile-status-pill ${statusInfo.class}`;
+    statusBadgeEl.textContent = statusInfo.label;
+  }
+
+  // Edit Button visibility
+  if (editBtnEl) {
+    if (isOwnProfile) {
+      editBtnEl.style.display = 'inline-block';
+      editBtnEl.onclick = () => {
+        playSound('click');
+        openEditProfileModal(profile);
+      };
+    } else {
+      editBtnEl.style.display = 'none';
+    }
+  }
+
+  // Fetch Match History
   if (historyContainer) {
     historyContainer.innerHTML = `<div style="text-align: center; color: #a78bfa; font-size: 0.82rem; padding: 15px;">Loading match history...</div>`;
     const matches = await getUserMatchHistory(uid, 15);
@@ -448,12 +634,18 @@ export async function openPlayerProfileModal(uid: string) {
         const resultLabel = isWin ? 'VICTORY' : isLoss ? 'DEFEAT' : 'DRAW';
         const deltaDisplay = m.ratingChange >= 0 ? `+${m.ratingChange}` : `${m.ratingChange}`;
         const matchDate = m.createdAt?.toDate ? m.createdAt.toDate().toLocaleDateString() : 'Recent';
+        const oppName = m.opponentDisplayName || m.opponentUsername || 'Opponent';
+        const oppAvatarUrl = getUserAvatarUrl({ photoURL: m.opponentPhotoURL, displayName: oppName, username: m.opponentUsername });
 
         html += `
           <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.82rem;">
-            <div>
-              <span style="font-weight: 700; color: ${resultColor}; font-family: 'Cinzel', serif;">${resultLabel}</span>
-              <span style="color: #aaa; margin-left: 6px;">vs @${m.opponentUsername}</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <img src="${oppAvatarUrl}" alt="${oppName}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #ffd700;" />
+              <div>
+                <span style="font-weight: 700; color: ${resultColor}; font-family: 'Cinzel', serif;">${resultLabel}</span>
+                <span style="color: #fff; margin-left: 6px; font-weight: 600;">vs ${oppName}</span>
+                <span style="font-size: 0.7rem; color: #94a3b8; margin-left: 4px;">(@${m.opponentUsername})</span>
+              </div>
             </div>
             <div style="text-align: right;">
               <span style="font-weight: 700; color: ${m.ratingChange >= 0 ? '#34d399' : '#f87171'};">${deltaDisplay} (${m.newRating})</span>
@@ -465,6 +657,96 @@ export async function openPlayerProfileModal(uid: string) {
       historyContainer.innerHTML = html;
     }
   }
+}
+
+export function openEditProfileModal(currentProfile: any) {
+  activeCroppedPhotoDataUrl = currentProfile?.photoURL || getSavedPhotoURL() || null;
+
+  const previewImg = document.getElementById('edit-avatar-preview') as HTMLImageElement;
+  const dnInput = document.getElementById('edit-displayname-input') as HTMLInputElement;
+  const unInput = document.getElementById('edit-username-input') as HTMLInputElement;
+  const ruleSelect = document.getElementById('edit-favoriterule-select') as HTMLSelectElement;
+  const msgEl = document.getElementById('edit-profile-msg');
+
+  const curDN = currentProfile?.displayName || getSavedDisplayName() || getSavedUsername();
+  const curUN = currentProfile?.username || getSavedUsername();
+
+  if (previewImg) {
+    previewImg.src = getUserAvatarUrl({ 
+      photoURL: activeCroppedPhotoDataUrl || '', 
+      displayName: curDN, 
+      username: curUN 
+    });
+  }
+
+  if (dnInput) dnInput.value = curDN;
+  if (unInput) unInput.value = curUN;
+  if (ruleSelect) ruleSelect.value = currentProfile?.favoriteRule || getSavedFavoriteRule();
+  if (msgEl) {
+    msgEl.textContent = '';
+    msgEl.style.color = '#ffd700';
+  }
+
+  showModal('edit-profile-modal');
+}
+
+export function showCropModal(dataUrl: string) {
+  showModal('avatar-crop-modal');
+  const cropCanvas = document.getElementById('crop-canvas') as HTMLCanvasElement;
+  const zoomSlider = document.getElementById('crop-zoom-slider') as HTMLInputElement;
+
+  if (zoomSlider) zoomSlider.value = '1';
+
+  if (cropCanvas) {
+    activeImageCropper = new ImageCropper(cropCanvas);
+    activeImageCropper.loadImage(dataUrl).catch((err) => {
+      console.error('Failed to load image into cropper:', err);
+    });
+  }
+
+  const applyBtn = document.getElementById('crop-apply-btn');
+  const cancelBtn = document.getElementById('crop-cancel-btn');
+  const cancelXBtn = document.getElementById('crop-cancel-x-btn');
+  const msgEl = document.getElementById('edit-profile-msg');
+
+  if (zoomSlider) {
+    zoomSlider.oninput = () => {
+      if (activeImageCropper) {
+        activeImageCropper.setZoom(parseFloat(zoomSlider.value));
+      }
+    };
+  }
+
+  if (applyBtn) {
+    applyBtn.onclick = () => {
+      playSound('click');
+      if (activeImageCropper) {
+        try {
+          const croppedDataUrl = activeImageCropper.cropAndCompress(256, 256);
+          activeCroppedPhotoDataUrl = croppedDataUrl;
+
+          const previewImg = document.getElementById('edit-avatar-preview') as HTMLImageElement;
+          if (previewImg) previewImg.src = croppedDataUrl;
+
+          if (msgEl) {
+            msgEl.textContent = 'Image cropped successfully! Click "Save Changes" to save.';
+            msgEl.style.color = '#10b981';
+          }
+        } catch (err) {
+          console.error('Failed to crop image:', err);
+        }
+      }
+      hideModal('avatar-crop-modal');
+    };
+  }
+
+  const closeCropper = () => {
+    playSound('click');
+    hideModal('avatar-crop-modal');
+  };
+
+  if (cancelBtn) cancelBtn.onclick = closeCropper;
+  if (cancelXBtn) cancelXBtn.onclick = closeCropper;
 }
 
 /**
@@ -608,6 +890,9 @@ export async function launchOnlineMatch(roomId: string) {
 
   // Initialize online HUD controls
   setupOnlineHUDControls(roomId);
+
+  // Initialize online Chat UI
+  initChatUI(roomId);
 
   const currentUser = await ensureAuth();
 
@@ -878,6 +1163,7 @@ export function getOnlineUsernames() {
 (window as any).getOnlineUsernames = getOnlineUsernames;
 
 export function cleanupOnlineMatch() {
+  cleanupChatUI();
   if (roomUnsubscribe) {
     roomUnsubscribe();
     roomUnsubscribe = null;

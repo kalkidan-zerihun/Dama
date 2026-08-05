@@ -18,8 +18,14 @@ service cloud.firestore {
     }
     match /rooms/{roomId} {
       allow read, write: if true;
+      match /messages/{messageId} {
+        allow read, write: if true;
+      }
     }
     match /match_history/{matchId} {
+      allow read, write: if true;
+    }
+    match /chatReports/{reportId} {
       allow read, write: if true;
     }
   }

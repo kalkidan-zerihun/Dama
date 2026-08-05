@@ -1329,10 +1329,8 @@ function initMenuParticles() {
     resize();
     window.addEventListener('resize', resize);
 
-    const isMobile = window.innerWidth < 768;
-    const particleCount = isMobile ? 18 : 35;
     const particles = [];
-    for (let i = 0; i < particleCount; i++) {
+    for (let i = 0; i < 40; i++) {
         particles.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height + canvas.height,
@@ -1347,12 +1345,6 @@ function initMenuParticles() {
     }
 
     function animate() {
-        // Pause animation if main menu screen is hidden
-        if (typeof gameStateManager !== 'undefined' && gameStateManager.currentScreen !== 'main-menu') {
-            animationFrameId = requestAnimationFrame(animate);
-            return;
-        }
-
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         // Draw subtle centered glow
@@ -1375,14 +1367,10 @@ function initMenuParticles() {
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
             ctx.fillStyle = `hsla(${p.hue}, 85%, 60%, ${p.opacity})`;
-            if (!isMobile) {
-                ctx.shadowColor = `hsla(${p.hue}, 85%, 60%, 0.4)`;
-                ctx.shadowBlur = p.size * 2;
-            }
+            ctx.shadowColor = `hsla(${p.hue}, 85%, 60%, 0.4)`;
+            ctx.shadowBlur = p.size * 2;
             ctx.fill();
-            if (!isMobile) {
-                ctx.shadowBlur = 0;
-            }
+            ctx.shadowBlur = 0;
         }
 
         animationFrameId = requestAnimationFrame(animate);
@@ -1503,10 +1491,6 @@ function createGame() {
     let boardY = 0;
     let cellSize = 0;
 
-    let offscreenBoardCanvas = null;
-    let offscreenBoardCtx = null;
-    let isOffscreenBoardDirty = true;
-
     let resizeObserver = null;
 
     // Resizing Rule
@@ -1536,7 +1520,6 @@ function createGame() {
         boardY = (height - boardSize) / 2;
         cellSize = boardSize / 8;
 
-        isOffscreenBoardDirty = true;
         render();
     }
 
@@ -2724,17 +2707,8 @@ function createGame() {
     // 🎨 RENDER PIPELINE (CANVAS DRAWINGS)
     // ==========================================
 
-    function renderOffscreenBoardStatic() {
-        if (!offscreenBoardCanvas) {
-            offscreenBoardCanvas = document.createElement('canvas');
-        }
-        if (offscreenBoardCanvas.width !== width || offscreenBoardCanvas.height !== height) {
-            offscreenBoardCanvas.width = width;
-            offscreenBoardCanvas.height = height;
-        }
-        offscreenBoardCtx = offscreenBoardCanvas.getContext('2d');
-        const octx = offscreenBoardCtx;
-        octx.clearRect(0, 0, width, height);
+    function render() {
+        if (isTerminated || !board || !Array.isArray(board) || board.length < 8) return;
 
         // Clear Screen with beautiful table vignette matching active color theme
         let innerBg = '#1e110a';
@@ -2753,319 +2727,27 @@ function createGame() {
             outerBg = '#030d08';
         }
 
-        const screenGrad = octx.createRadialGradient(
+        const screenGrad = ctx.createRadialGradient(
             width / 2, height / 2, Math.min(width, height) * 0.1,
             width / 2, height / 2, Math.max(width, height) * 0.8
         );
         screenGrad.addColorStop(0, innerBg);
         screenGrad.addColorStop(1, outerBg);
-        octx.fillStyle = screenGrad;
-        octx.fillRect(0, 0, width, height);
+        ctx.fillStyle = screenGrad;
+        ctx.fillRect(0, 0, width, height);
 
         // Render soft dust particles/wood texture overlay on the background
-        octx.save();
-        octx.globalAlpha = 0.015;
-        octx.fillStyle = '#fff';
+        ctx.save();
+        ctx.globalAlpha = 0.015;
+        ctx.fillStyle = '#fff';
         for (let pi = 0; pi < 100; pi++) {
             const px = (Math.sin(pi * 4543.3) * 0.5 + 0.5) * width;
             const py = (Math.cos(pi * 2321.7) * 0.5 + 0.5) * height;
-            octx.beginPath();
-            octx.arc(px, py, 1.5, 0, Math.PI * 2);
-            octx.fill();
+            ctx.beginPath();
+            ctx.arc(px, py, 1.5, 0, Math.PI * 2);
+            ctx.fill();
         }
-        octx.restore();
-
-        // 1. Draw Arcade Outer Board Border (Premium Handcrafted Traditional Wood Frame)
-        octx.save();
-        
-        // Frame outer shadow
-        octx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-        octx.shadowBlur = 18;
-        octx.shadowOffsetX = 4;
-        octx.shadowOffsetY = 8;
-        
-        const framePadding = Math.max(12, boardSize * 0.04);
-        const frameX = boardX - framePadding;
-        const frameY = boardY - framePadding;
-        const frameSize = boardSize + framePadding * 2;
-        const borderRadius = 12;
-
-        octx.beginPath();
-        if (octx.roundRect) {
-            octx.roundRect(frameX, frameY, frameSize, frameSize, borderRadius);
-        } else {
-            octx.rect(frameX, frameY, frameSize, frameSize);
-        }
-        
-        const frameGrad = octx.createRadialGradient(
-            width / 2, height / 2, boardSize / 3,
-            width / 2, height / 2, frameSize / 2
-        );
-        frameGrad.addColorStop(0, '#5a3118');
-        frameGrad.addColorStop(0.7, '#3c1d0c');
-        frameGrad.addColorStop(1, '#250f05');
-        octx.fillStyle = frameGrad;
-        octx.fill();
-        octx.restore();
-
-        // Wood grain lines across the frame
-        octx.save();
-        octx.globalAlpha = 0.07;
-        octx.strokeStyle = '#fff8e7';
-        octx.lineWidth = 1;
-        for (let gx = frameX; gx < frameX + frameSize; gx += 10) {
-            octx.beginPath();
-            octx.moveTo(gx, frameY);
-            octx.bezierCurveTo(
-                gx + 12 * Math.sin(gx * 0.02), frameY + frameSize * 0.25,
-                gx - 12 * Math.cos(gx * 0.02), frameY + frameSize * 0.75,
-                gx, frameY + frameSize
-            );
-            octx.stroke();
-        }
-        octx.restore();
-
-        // Frame borders and bevels
-        octx.save();
-        octx.strokeStyle = 'rgba(255, 248, 230, 0.15)';
-        octx.lineWidth = 1.5;
-        octx.strokeRect(boardX, boardY, boardSize, boardSize);
-        
-        octx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
-        octx.lineWidth = 2;
-        octx.strokeRect(boardX - 1, boardY - 1, boardSize + 2, boardSize + 2);
-        
-        octx.strokeStyle = 'rgba(255, 215, 0, 0.25)';
-        octx.lineWidth = 1;
-        octx.beginPath();
-        const borderInset = framePadding * 0.4;
-        if (octx.roundRect) {
-            octx.roundRect(
-                frameX + borderInset, frameY + borderInset,
-                frameSize - borderInset * 2, frameSize - borderInset * 2,
-                borderRadius * 0.7
-            );
-        } else {
-            octx.rect(
-                frameX + borderInset, frameY + borderInset,
-                frameSize - borderInset * 2, frameSize - borderInset * 2
-            );
-        }
-        octx.stroke();
-
-        // Brass corner plates
-        octx.fillStyle = '#e5b842';
-        octx.strokeStyle = '#997315';
-        octx.lineWidth = 1;
-        const cornerSize = framePadding * 0.8;
-        
-        // Top-Left corner brass plate
-        octx.beginPath();
-        octx.moveTo(frameX, frameY);
-        octx.lineTo(frameX + cornerSize * 1.5, frameY);
-        octx.lineTo(frameX + cornerSize, frameY + cornerSize);
-        octx.lineTo(frameX, frameY + cornerSize * 1.5);
-        octx.closePath();
-        octx.fill();
-        octx.stroke();
-        
-        // Top-Right
-        octx.beginPath();
-        octx.moveTo(frameX + frameSize, frameY);
-        octx.lineTo(frameX + frameSize - cornerSize * 1.5, frameY);
-        octx.lineTo(frameX + frameSize - cornerSize, frameY + cornerSize);
-        octx.lineTo(frameX + frameSize, frameY + cornerSize * 1.5);
-        octx.closePath();
-        octx.fill();
-        octx.stroke();
-
-        // Bottom-Left
-        octx.beginPath();
-        octx.moveTo(frameX, frameY + frameSize);
-        octx.lineTo(frameX + cornerSize * 1.5, frameY + frameSize);
-        octx.lineTo(frameX + cornerSize, frameY + frameSize - cornerSize);
-        octx.lineTo(frameX, frameY + frameSize - cornerSize * 1.5);
-        octx.closePath();
-        octx.fill();
-        octx.stroke();
-
-        // Bottom-Right
-        octx.beginPath();
-        octx.moveTo(frameX + frameSize, frameY + frameSize);
-        octx.lineTo(frameX + frameSize - cornerSize * 1.5, frameY + frameSize);
-        octx.lineTo(frameX + frameSize - cornerSize, frameY + frameSize - cornerSize);
-        octx.lineTo(frameX + frameSize, frameY + frameSize - cornerSize * 1.5);
-        octx.closePath();
-        octx.fill();
-        octx.stroke();
-
-        // Rivets
-        octx.fillStyle = '#4a3308';
-        const rivetOffset = cornerSize * 0.4;
-        const drawRivet = (rx, ry) => {
-            octx.beginPath();
-            octx.arc(rx, ry, 1.5, 0, Math.PI * 2);
-            octx.fill();
-        };
-        drawRivet(frameX + rivetOffset, frameY + rivetOffset);
-        drawRivet(frameX + frameSize - rivetOffset, frameY + rivetOffset);
-        drawRivet(frameX + rivetOffset, frameY + frameSize - rivetOffset);
-        drawRivet(frameX + frameSize - rivetOffset, frameY + frameSize - rivetOffset);
-        
-        octx.restore();
-
-        // 2. Draw standard Checkerboard cells (Realistic wood grain)
-        const boardTheme = localStorage.getItem('damma-board-theme') || 'traditional_wood';
-        let darkCellGrad1 = '#361c0e', darkCellGrad2 = '#241005';
-        let lightCellGrad1 = '#dfc19c', lightCellGrad2 = '#cdab83';
-
-        if (boardTheme === 'traditional_wood') {
-            darkCellGrad1 = '#5c3818'; darkCellGrad2 = '#38200c';
-            lightCellGrad1 = '#dfc19c'; lightCellGrad2 = '#cdab83';
-        } else if (boardTheme === 'dark_wood') {
-            darkCellGrad1 = '#2a1708'; darkCellGrad2 = '#150b04';
-            lightCellGrad1 = '#a67c52'; lightCellGrad2 = '#8c6239';
-        } else if (boardTheme === 'mahogany') {
-            darkCellGrad1 = '#44100b'; darkCellGrad2 = '#2b0a07';
-            lightCellGrad1 = '#c47b6a'; lightCellGrad2 = '#a95a4a';
-        } else if (boardTheme === 'marble') {
-            darkCellGrad1 = '#2c3e50'; darkCellGrad2 = '#1a252f';
-            lightCellGrad1 = '#ecf0f1'; lightCellGrad2 = '#bdc3c7';
-        } else if (boardTheme === 'green_felt') {
-            darkCellGrad1 = '#134e0a'; darkCellGrad2 = '#0a2e05';
-            lightCellGrad1 = '#2ecc71'; lightCellGrad2 = '#27ae60';
-        } else if (boardTheme === 'black_minimal') {
-            darkCellGrad1 = '#000000'; darkCellGrad2 = '#111111';
-            lightCellGrad1 = '#2c3e50'; lightCellGrad2 = '#34495e';
-        } else if (boardTheme === 'white_minimal') {
-            darkCellGrad1 = '#bdc3c7'; darkCellGrad2 = '#95a5a6';
-            lightCellGrad1 = '#ffffff'; lightCellGrad2 = '#f5f6fa';
-        } else if (boardTheme === 'royal_gold') {
-            darkCellGrad1 = '#8a640f'; darkCellGrad2 = '#543b05';
-            lightCellGrad1 = '#f7f1e3'; lightCellGrad2 = '#dcdde1';
-        } else if (boardTheme === 'ancient_ethiopia') {
-            darkCellGrad1 = '#4b2413'; darkCellGrad2 = '#32160b';
-            lightCellGrad1 = '#e5b842'; lightCellGrad2 = '#c69c35';
-        } else if (boardTheme === 'coffee_house') {
-            darkCellGrad1 = '#4e3629'; darkCellGrad2 = '#2a1b14';
-            lightCellGrad1 = '#d2b48c'; lightCellGrad2 = '#c3a175';
-        } else if (boardTheme === 'axumit') {
-            darkCellGrad1 = '#340e11'; darkCellGrad2 = '#1d0406';
-            lightCellGrad1 = '#d4af37'; lightCellGrad2 = '#b89025';
-        } else if (boardTheme === 'night_mode') {
-            darkCellGrad1 = '#111118'; darkCellGrad2 = '#050508';
-            lightCellGrad1 = '#222538'; lightCellGrad2 = '#191c2b';
-        } else if (boardTheme === 'emerald_valley') {
-            darkCellGrad1 = '#0f4c3a'; darkCellGrad2 = '#072e22';
-            lightCellGrad1 = '#a8e6cf'; lightCellGrad2 = '#dcedc1';
-        } else if (boardTheme === 'imperial_crimson') {
-            darkCellGrad1 = '#6b111c'; darkCellGrad2 = '#3a0208';
-            lightCellGrad1 = '#f9d5d5'; lightCellGrad2 = '#eeb9b9';
-        } else if (boardTheme === 'obsidian_ash') {
-            darkCellGrad1 = '#1f1f1f'; darkCellGrad2 = '#0d0d0d';
-            lightCellGrad1 = '#b2bec3'; lightCellGrad2 = '#636e72';
-        }
-
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                const x = boardX + c * cellSize;
-                const y = boardY + r * cellSize;
-                const isDarkCell = (r + c) % 2 === 1;
-
-                octx.save();
-                
-                if (isDarkCell) {
-                    const cellGrad = octx.createLinearGradient(x, y, x + cellSize, y + cellSize);
-                    cellGrad.addColorStop(0, darkCellGrad1);
-                    cellGrad.addColorStop(1, darkCellGrad2);
-                    octx.fillStyle = cellGrad;
-                    octx.fillRect(x, y, cellSize, cellSize);
-                    
-                    octx.strokeStyle = 'rgba(255, 230, 200, 0.04)';
-                    octx.lineWidth = 1;
-                    for (let gi = 2; gi < cellSize; gi += 6) {
-                        octx.beginPath();
-                        octx.moveTo(x + gi, y);
-                        octx.bezierCurveTo(
-                            x + gi + Math.sin(gi * 0.1) * 3, y + cellSize * 0.3,
-                            x + gi - Math.cos(gi * 0.1) * 3, y + cellSize * 0.7,
-                            x + gi, y + cellSize
-                        );
-                        octx.stroke();
-                    }
-                    
-                    octx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-                    octx.fillRect(x, y, cellSize, cellSize);
-                } else {
-                    const cellGrad = octx.createLinearGradient(x, y, x + cellSize, y + cellSize);
-                    cellGrad.addColorStop(0, lightCellGrad1);
-                    cellGrad.addColorStop(1, lightCellGrad2);
-                    octx.fillStyle = cellGrad;
-                    octx.fillRect(x, y, cellSize, cellSize);
-                    
-                    octx.strokeStyle = 'rgba(100, 60, 30, 0.08)';
-                    octx.lineWidth = 1;
-                    for (let gi = 2; gi < cellSize; gi += 6) {
-                        octx.beginPath();
-                        octx.moveTo(x + gi, y);
-                        octx.bezierCurveTo(
-                            x + gi + Math.sin(gi * 0.1) * 2, y + cellSize * 0.3,
-                            x + gi - Math.cos(gi * 0.1) * 2, y + cellSize * 0.7,
-                            x + gi, y + cellSize
-                        );
-                        octx.stroke();
-                    }
-                }
-
-                octx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
-                octx.lineWidth = 1;
-                octx.strokeRect(x, y, cellSize, cellSize);
-
-                octx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-                octx.beginPath();
-                octx.moveTo(x, y + cellSize);
-                octx.lineTo(x, y);
-                octx.lineTo(x + cellSize, y);
-                octx.stroke();
-
-                octx.restore();
-            }
-        }
-
-        // Draw Board Coordinates Grid Labels (A1 to H8) around the board edge
-        const showCoordinates = localStorage.getItem('damma-gameplay-coordinates') !== 'false';
-        if (showCoordinates) {
-            octx.save();
-            octx.fillStyle = 'rgba(255, 248, 230, 0.65)';
-            octx.font = 'bold 11px "JetBrains Mono", monospace';
-            octx.textAlign = 'center';
-            octx.textBaseline = 'middle';
-            
-            const colLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-            const rowNums = ['8', '7', '6', '5', '4', '3', '2', '1'];
-            
-            for (let i = 0; i < 8; i++) {
-                const cellCenter = i * cellSize + cellSize / 2;
-                octx.fillText(colLetters[i], boardX + cellCenter, boardY - framePadding / 2);
-                octx.fillText(colLetters[i], boardX + cellCenter, boardY + boardSize + framePadding / 2);
-                octx.fillText(rowNums[i], boardX - framePadding / 2, boardY + cellCenter);
-                octx.fillText(rowNums[i], boardX + boardSize + framePadding / 2, boardY + cellCenter);
-            }
-            octx.restore();
-        }
-
-        isOffscreenBoardDirty = false;
-    }
-
-    function render() {
-        if (isTerminated || !board || !Array.isArray(board) || board.length < 8) return;
-
-        if (!offscreenBoardCanvas || isOffscreenBoardDirty) {
-            renderOffscreenBoardStatic();
-        }
-
-        // Fast blit static pre-rendered background buffer
-        ctx.drawImage(offscreenBoardCanvas, 0, 0);
+        ctx.restore();
 
         pulseCycle = (pulseCycle + 0.05) % (Math.PI * 2);
         const pulseRatio = (Math.sin(pulseCycle) + 1) / 2; // 0 to 1 pulsing
@@ -3626,6 +3308,28 @@ function createGame() {
                     ctx.restore();
                 }
             }
+        }
+
+        // Draw Board Coordinates Grid Labels (A1 to H8) around the board edge
+        const showCoordinates = localStorage.getItem('damma-gameplay-coordinates') !== 'false';
+        if (showCoordinates) {
+            ctx.save();
+            ctx.fillStyle = 'rgba(255, 248, 230, 0.65)';
+            ctx.font = 'bold 11px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const colLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+            const rowNums = ['8', '7', '6', '5', '4', '3', '2', '1'];
+            
+            for (let i = 0; i < 8; i++) {
+                const cellCenter = i * cellSize + cellSize / 2;
+                ctx.fillText(colLetters[i], boardX + cellCenter, boardY - framePadding / 2);
+                ctx.fillText(colLetters[i], boardX + cellCenter, boardY + boardSize + framePadding / 2);
+                ctx.fillText(rowNums[i], boardX - framePadding / 2, boardY + cellCenter);
+                ctx.fillText(rowNums[i], boardX + boardSize + framePadding / 2, boardY + cellCenter);
+            }
+            ctx.restore();
         }
 
         // Calculate and Draw real-time FPS Counter

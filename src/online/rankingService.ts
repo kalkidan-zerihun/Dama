@@ -39,6 +39,9 @@ export interface UserRankProfile {
   uid: string;
   username: string;
   usernameLower: string;
+  displayName?: string;
+  photoURL?: string;
+  favoriteRule?: string;
   status: string;
   rating: number;
   wins: number;
@@ -59,6 +62,8 @@ export interface MatchHistoryItem {
   playerUid: string;
   opponentUid: string;
   opponentUsername: string;
+  opponentDisplayName?: string;
+  opponentPhotoURL?: string;
   result: 'win' | 'loss' | 'draw';
   ratingBefore: number;
   ratingAfter: number;
@@ -111,6 +116,9 @@ export function sanitizeUserProfile(data: any, uid: string, defaultUsername = 'P
     uid: data?.uid || uid,
     username: data?.username || defaultUsername,
     usernameLower: data?.usernameLower || (data?.username || defaultUsername).toLowerCase(),
+    displayName: data?.displayName || data?.username || defaultUsername,
+    photoURL: data?.photoURL || '',
+    favoriteRule: data?.favoriteRule || 'Ethiopian Damma (Forced Capture)',
     status: data?.status || 'online',
     rating,
     wins,

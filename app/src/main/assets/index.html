@@ -1216,216 +1216,65 @@
 
     <!-- 👤 PLAYER PROFILE MODAL -->
     <div id="player-profile-modal" class="modal">
-        <div class="modal-dialog profile-modal-dialog">
+        <div class="modal-dialog" style="max-width: 520px; width: 94%; background: linear-gradient(145deg, rgba(20, 15, 10, 0.98), rgba(10, 7, 4, 0.99)); border: 2px solid #ffd700; border-radius: 20px; box-shadow: 0 16px 50px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto;">
             
             <div class="modal-header" style="border-bottom: 1px solid rgba(255, 215, 0, 0.25); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 1.3rem;">👤</span>
-                    <h3 style="font-family: 'Cinzel', serif; color: #ffd700; margin: 0; font-size: 1.15rem; font-weight: 700;">PLAYER PROFILE</h3>
-                </div>
+                <h3 style="font-family: 'Cinzel', serif; color: #ffd700; margin: 0; font-size: 1.15rem;">PLAYER PROFILE</h3>
                 <button onclick="document.getElementById('player-profile-modal').classList.remove('active')" class="settings-close-btn" aria-label="Close Profile">✕</button>
             </div>
 
-            <div class="modal-body" style="padding: 16px 20px;">
+            <div class="modal-body" style="padding: 20px;">
                 <!-- Profile Header Card -->
-                <div class="profile-header-card">
-                    <div class="profile-avatar-wrapper">
-                        <img id="profile-avatar-img" class="profile-avatar-img" src="" alt="Avatar" />
-                        <span id="profile-status-indicator" class="status-dot online" title="Online Status"></span>
-                    </div>
+                <div style="display: flex; align-items: center; gap: 14px; background: rgba(0,0,0,0.5); border: 1.5px solid rgba(255,215,0,0.3); border-radius: 14px; padding: 16px; margin-bottom: 18px;">
+                    <div id="profile-avatar" style="width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, #b45309, #d97706); color: #fff; font-size: 1.4rem; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 2px solid #ffd700; box-shadow: 0 0 12px rgba(255,215,0,0.3);">P</div>
                     
-                    <div class="profile-info-block">
-                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            <h4 id="profile-display-name" style="font-family: 'Cinzel', serif; font-size: 1.25rem; color: #fff; margin: 0; font-weight: 700; word-break: break-word;">Display Name</h4>
-                            <span id="profile-status-badge" class="profile-status-pill online">Online</span>
-                        </div>
-                        <span id="profile-username-tag" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #ffd700; display: block; margin: 2px 0 6px 0;">@username</span>
-                        <div class="profile-badges-row">
-                            <span id="profile-tier-badge" style="font-size: 0.78rem; padding: 2px 10px; border-radius: 6px; background: rgba(255,215,0,0.15); color: #ffd700; font-weight: 600; border: 1px solid rgba(255,215,0,0.3);">🥈 Silver</span>
-                            <span id="profile-global-rank" style="font-size: 0.78rem; color: #cbd5e1;">Global Rank #--</span>
+                    <div style="flex: 1;">
+                        <h4 id="profile-username" style="font-family: 'Cinzel', serif; font-size: 1.15rem; color: #fff; margin: 0 0 2px 0;">Username</h4>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="profile-tier-badge" style="font-size: 0.78rem; padding: 2px 8px; border-radius: 6px; background: rgba(255,215,0,0.15); color: #ffd700; font-weight: 600; border: 1px solid rgba(255,215,0,0.3);">🥈 Silver</span>
+                            <span id="profile-global-rank" style="font-size: 0.75rem; color: #aaa;">Global Rank #--</span>
                         </div>
                     </div>
 
-                    <div class="profile-rating-block">
-                        <span style="font-size: 0.68rem; color: #94a3b8; display: block; font-family: 'Cinzel', serif; letter-spacing: 0.5px;">RATING</span>
-                        <strong id="profile-rating" style="font-size: 1.35rem; color: #ffd700; font-weight: 800;">1200</strong>
-                        <button id="profile-open-edit-btn" class="tutorial-btn primary" style="margin-top: 8px; padding: 6px 12px; font-size: 0.78rem; border-radius: 8px; display: none;">⚙ Edit Profile</button>
+                    <div style="text-align: right;">
+                        <span style="font-size: 0.68rem; color: #aaa; display: block;">RATING</span>
+                        <strong id="profile-rating" style="font-size: 1.3rem; color: #ffd700; font-weight: 700;">1200</strong>
                     </div>
                 </div>
 
                 <!-- Comprehensive Stats Grid -->
-                <div class="profile-stats-grid">
-                    <div class="profile-stat-card">
-                        <span class="stat-label">HIGHEST RATING</span>
-                        <strong id="profile-highest-rating" class="stat-value" style="color: #ffd700;">1200</strong>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; text-align: center;">
+                        <span style="font-size: 0.68rem; color: #aaa; display: block;">HIGHEST RATING</span>
+                        <strong id="profile-highest-rating" style="font-size: 1.05rem; color: #ffd700;">1200</strong>
                     </div>
-                    <div class="profile-stat-card">
-                        <span class="stat-label">WIN RATE</span>
-                        <strong id="profile-win-pct" class="stat-value" style="color: #10b981;">0%</strong>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; text-align: center;">
+                        <span style="font-size: 0.68rem; color: #aaa; display: block;">WIN RATE</span>
+                        <strong id="profile-win-pct" style="font-size: 1.05rem; color: #10b981;">0%</strong>
                     </div>
-                    <div class="profile-stat-card">
-                        <span class="stat-label">TOTAL GAMES</span>
-                        <strong id="profile-total-games" class="stat-value" style="color: #60a5fa;">0</strong>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; text-align: center;">
+                        <span style="font-size: 0.68rem; color: #aaa; display: block;">TOTAL GAMES</span>
+                        <strong id="profile-total-games" style="font-size: 1.05rem; color: #60a5fa;">0</strong>
                     </div>
-                    <div class="profile-stat-card">
-                        <span class="stat-label">RECORD (W/L/D)</span>
-                        <strong id="profile-record" class="stat-value" style="color: #fff; font-size: 0.9rem;">0 / 0 / 0</strong>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; text-align: center;">
+                        <span style="font-size: 0.68rem; color: #aaa; display: block;">RECORD (W/L/D)</span>
+                        <strong id="profile-record" style="font-size: 0.9rem; color: #fff;">0 / 0 / 0</strong>
                     </div>
-                    <div class="profile-stat-card">
-                        <span class="stat-label">CURRENT STREAK</span>
-                        <strong id="profile-current-streak" class="stat-value" style="color: #f59e0b;">0</strong>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; text-align: center;">
+                        <span style="font-size: 0.68rem; color: #aaa; display: block;">CURRENT STREAK</span>
+                        <strong id="profile-current-streak" style="font-size: 1.05rem; color: #f59e0b;">0</strong>
                     </div>
-                    <div class="profile-stat-card">
-                        <span class="stat-label">BEST STREAK</span>
-                        <strong id="profile-best-streak" class="stat-value" style="color: #a855f7;">0</strong>
-                    </div>
-                </div>
-
-                <!-- Favorite Rule & Member Since -->
-                <div class="profile-meta-grid">
-                    <div class="profile-meta-card">
-                        <span style="font-size: 0.72rem; color: #ffd700; font-family: 'Cinzel', serif; display: block; margin-bottom: 2px;">FAVORITE RULE</span>
-                        <strong id="profile-favorite-rule" style="font-size: 0.88rem; color: #fff; font-weight: 600; word-break: break-word; display: block;">Ethiopian Damma (Forced Capture)</strong>
-                    </div>
-                    <div class="profile-meta-card">
-                        <span style="font-size: 0.72rem; color: #ffd700; font-family: 'Cinzel', serif; display: block; margin-bottom: 2px;">MEMBER SINCE</span>
-                        <strong id="profile-member-since" style="font-size: 0.88rem; color: #fff; font-weight: 600; display: block;">Aug 2026</strong>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; text-align: center;">
+                        <span style="font-size: 0.68rem; color: #aaa; display: block;">BEST STREAK</span>
+                        <strong id="profile-best-streak" style="font-size: 1.05rem; color: #a855f7;">0</strong>
                     </div>
                 </div>
 
                 <!-- Recent Ranked Match History -->
                 <h4 style="font-family: 'Cinzel', serif; color: #ffd700; font-size: 0.95rem; margin: 0 0 10px 0; letter-spacing: 0.5px;">RECENT MATCH HISTORY</h4>
                 
-                <div id="profile-match-history" style="max-height: 220px; overflow-y: auto; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 8px;">
-                    <div style="text-align: center; color: #94a3b8; font-size: 0.85rem; padding: 20px;">No match history found.</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ✏️ EDIT PROFILE MODAL -->
-    <div id="edit-profile-modal" class="modal">
-        <div class="modal-dialog edit-profile-dialog">
-            <div class="modal-header" style="border-bottom: 1px solid rgba(255, 215, 0, 0.25); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="font-family: 'Cinzel', serif; color: #ffd700; margin: 0; font-size: 1.15rem; font-weight: 700;">EDIT PLAYER PROFILE</h3>
-                <button onclick="document.getElementById('edit-profile-modal').classList.remove('active')" class="settings-close-btn" aria-label="Close Edit Profile">✕</button>
-            </div>
-
-            <div class="modal-body" style="padding: 20px;">
-                <!-- Profile Picture Management -->
-                <div class="edit-avatar-section">
-                    <div style="position: relative;">
-                        <img id="edit-avatar-preview" class="edit-avatar-preview-img" src="" alt="Avatar Preview" />
-                    </div>
-                    
-                    <div class="edit-avatar-actions">
-                        <button id="edit-avatar-upload-btn" class="tutorial-btn primary">📷 Upload Image</button>
-                        <button id="edit-avatar-remove-btn" class="tutorial-btn secondary">🗑️ Remove</button>
-                    </div>
-                    <span style="font-size: 0.72rem; color: #94a3b8; display: block;">Supported formats: JPG, PNG, WEBP (Max 5 MB)</span>
-                    <input type="file" id="avatar-file-input" accept="image/jpeg,image/png,image/webp" style="display: none;" />
-                </div>
-
-                <!-- Display Name Field -->
-                <div class="edit-form-group">
-                    <label class="edit-form-label">DISPLAY NAME</label>
-                    <input type="text" id="edit-displayname-input" class="edit-form-input" placeholder="e.g. Emperor Fasilides" maxlength="20" />
-                    <span style="font-size: 0.72rem; color: #94a3b8; display: block; margin-top: 4px;">3–20 characters. Letters, numbers, spaces, and underscores.</span>
-                </div>
-
-                <!-- Username Field -->
-                <div class="edit-form-group">
-                    <label class="edit-form-label">USERNAME (UNIQUE HANDLE)</label>
-                    <input type="text" id="edit-username-input" class="edit-form-input" placeholder="e.g. Axum_King" maxlength="15" style="font-family: 'JetBrains Mono', monospace;" />
-                    <span style="font-size: 0.72rem; color: #94a3b8; display: block; margin-top: 4px;">3–15 characters. Must be unique.</span>
-                </div>
-
-                <!-- Favorite Rule Variant Field -->
-                <div class="edit-form-group" style="margin-bottom: 20px;">
-                    <label class="edit-form-label">FAVORITE DAMMA RULE VARIANT</label>
-                    <select id="edit-favoriterule-select" class="edit-form-select">
-                        <option value="Ethiopian Damma (Forced Capture)">Ethiopian Damma (Forced Capture)</option>
-                        <option value="Egregna (Footman Standard)">Egregna (Footman Standard)</option>
-                        <option value="Toregna (Flying King Dominance)">Toregna (Flying King Dominance)</option>
-                        <option value="Traditional Axumite Tournament">Traditional Axumite Tournament</option>
-                    </select>
-                </div>
-
-                <p id="edit-profile-msg" style="font-size: 0.85rem; min-height: 20px; color: #ffd700; margin-bottom: 16px; line-height: 1.4;"></p>
-
-                <div class="edit-action-row">
-                    <button id="edit-profile-cancel-btn" class="tutorial-btn secondary" style="padding: 11px; border-radius: 10px; font-weight: 700;">Cancel</button>
-                    <button id="edit-profile-save-btn" class="tutorial-btn primary" style="padding: 11px; border-radius: 10px; font-weight: 700;">Save Changes</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ✂️ AVATAR CROPPER MODAL -->
-    <div id="avatar-crop-modal" class="modal">
-        <div class="modal-dialog crop-modal-dialog">
-            <div class="modal-header" style="border-bottom: 1px solid rgba(255, 215, 0, 0.25); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="font-family: 'Cinzel', serif; color: #ffd700; margin: 0; font-size: 1.1rem; font-weight: 700;">CROP PROFILE PICTURE</h3>
-                <button id="crop-cancel-x-btn" class="settings-close-btn" aria-label="Close Crop">✕</button>
-            </div>
-
-            <div class="modal-body" style="padding: 20px; display: flex; flex-direction: column; align-items: center;">
-                <p style="font-size: 0.82rem; color: #e2e8f0; margin-bottom: 14px; line-height: 1.4;">Drag the image to adjust position inside the gold crop box.</p>
-
-                <div class="crop-canvas-wrapper">
-                    <canvas id="crop-canvas" class="crop-canvas-el" width="300" height="300"></canvas>
-                </div>
-
-                <!-- Zoom Controls -->
-                <div style="width: 100%; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; background: rgba(0,0,0,0.4); padding: 10px 14px; border-radius: 10px; box-sizing: border-box;">
-                    <span style="font-size: 0.9rem;">🔍</span>
-                    <input type="range" id="crop-zoom-slider" min="1" max="3" step="0.05" value="1" style="flex: 1; accent-color: #ffd700; cursor: pointer;" />
-                    <span style="font-size: 1.1rem;">🔎</span>
-                </div>
-
-                <div class="edit-action-row">
-                    <button id="crop-cancel-btn" class="tutorial-btn secondary" style="padding: 11px; border-radius: 10px; font-weight: 700;">Cancel</button>
-                    <button id="crop-apply-btn" class="tutorial-btn primary" style="padding: 11px; border-radius: 10px; font-weight: 700;">Apply & Crop</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 🚩 REPORT CHAT MESSAGE MODAL -->
-    <div id="report-message-modal" class="modal">
-        <div class="modal-dialog" style="max-width: 460px; width: 94%; background: linear-gradient(145deg, rgba(20, 15, 10, 0.98), rgba(10, 7, 4, 0.99)); border: 2px solid #ef4444; border-radius: 20px; box-shadow: 0 16px 50px rgba(0,0,0,0.85);">
-            <div class="modal-header" style="border-bottom: 1px solid rgba(239, 68, 68, 0.3); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 1.2rem;">🚩</span>
-                    <h3 style="font-family: 'Cinzel', serif; color: #f87171; margin: 0; font-size: 1.15rem; font-weight: 700;">REPORT INAPPROPRIATE MESSAGE</h3>
-                </div>
-                <button id="report-modal-close-x" class="settings-close-btn" aria-label="Close Report">✕</button>
-            </div>
-
-            <div class="modal-body" style="padding: 20px;">
-                <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 10px; padding: 12px; margin-bottom: 16px;">
-                    <span style="font-size: 0.72rem; color: #94a3b8; display: block; font-family: 'Cinzel', serif; margin-bottom: 4px;">REPORTED MESSAGE:</span>
-                    <blockquote id="report-target-message-preview" style="margin: 0; font-size: 0.88rem; color: #f1f5f9; font-style: italic; word-break: break-word; line-height: 1.4;">""</blockquote>
-                    <span id="report-target-sender-info" style="font-size: 0.75rem; color: #ffd700; display: block; margin-top: 6px;">From: @opponent</span>
-                </div>
-
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; font-size: 0.75rem; color: #ffd700; font-family: 'Cinzel', serif; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 700;">REASON FOR REPORT</label>
-                    <select id="report-reason-select" style="width: 100%; box-sizing: border-box; padding: 11px 14px; background: rgba(0, 0, 0, 0.7); border: 1.5px solid rgba(239, 68, 68, 0.4); border-radius: 10px; color: #fff; font-size: 0.88rem; outline: none;">
-                        <option value="Hate speech, discrimination, or slurs">Hate speech, discrimination, or slurs</option>
-                        <option value="Harassment, insults, or personal attacks">Harassment, insults, or personal attacks</option>
-                        <option value="Sexually explicit or inappropriate content">Sexually explicit or inappropriate content</option>
-                        <option value="Threats or violence">Threats or violence</option>
-                        <option value="Spam or repeated messages">Spam or repeated messages</option>
-                        <option value="Other inappropriate behavior">Other inappropriate behavior</option>
-                    </select>
-                </div>
-
-                <p id="report-modal-msg" style="font-size: 0.85rem; min-height: 20px; color: #ffd700; margin-bottom: 16px; line-height: 1.4;"></p>
-
-                <div style="display: flex; gap: 10px;">
-                    <button id="report-cancel-btn" class="tutorial-btn secondary" style="flex: 1; padding: 11px; border-radius: 10px; font-weight: 700;">Cancel</button>
-                    <button id="report-submit-btn" class="tutorial-btn primary" style="flex: 1; padding: 11px; border-radius: 10px; font-weight: 700; background: linear-gradient(135deg, #dc2626, #991b1b);">Submit Report</button>
+                <div id="profile-match-history" style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 8px;">
+                    <div style="text-align: center; color: #aaa; font-size: 0.8rem; padding: 20px;">No match history found.</div>
                 </div>
             </div>
         </div>

@@ -5,12 +5,45 @@ export interface UserProfile {
   uid: string;
   username: string;
   usernameLower: string;
+  displayName?: string;
+  photoURL?: string;
+  favoriteRule?: string;
   status: 'online' | 'offline' | 'searching' | 'in_match' | 'disconnected';
+  rating?: number;
+  wins?: number;
+  losses?: number;
+  draws?: number;
+  totalGames?: number;
+  winPercentage?: number;
+  currentStreak?: number;
+  highestStreak?: number;
+  highestRating?: number;
   lastSeen?: any;
   createdAt?: any;
 }
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,15}$/;
+const DISPLAYNAME_REGEX = /^[a-zA-Z0-9_ ]{3,20}$/;
+
+/**
+ * Validates format of display name (3-20 chars, letters, numbers, spaces, underscores)
+ */
+export function validateDisplayNameFormat(displayName: string): { valid: boolean; message: string } {
+  const trimmed = displayName.trim();
+  if (!trimmed) {
+    return { valid: false, message: 'Display name cannot be empty.' };
+  }
+  if (trimmed.length < 3) {
+    return { valid: false, message: 'Display name must be at least 3 characters long.' };
+  }
+  if (trimmed.length > 20) {
+    return { valid: false, message: 'Display name cannot exceed 20 characters.' };
+  }
+  if (!DISPLAYNAME_REGEX.test(trimmed)) {
+    return { valid: false, message: 'Display name can only contain letters, numbers, spaces, and underscores.' };
+  }
+  return { valid: true, message: 'Valid display name.' };
+}
 
 /**
  * Validates format of username (3-15 chars, alphanumeric and underscore)
@@ -33,6 +66,56 @@ export function validateUsernameFormat(username: string): { valid: boolean; mess
 }
 
 /**
+ * Returns default SVG avatar Data URL with a modern gradient and initial
+ */
+export function getDefaultAvatarSvg(name: string): string {
+  const initial = (name || 'P').trim().charAt(0).toUpperCase();
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient></defs><rect width="100" height="100" rx="50" fill="url(#g)"/><text x="50" y="64" font-size="46" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-weight="bold" fill="#ffffff" text-anchor="middle">${initial}</text></svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+/**
+ * Gets user avatar photo URL or fallback SVG
+ */
+export function getUserAvatarUrl(user?: { photoURL?: string; displayName?: string; username?: string }): string {
+  if (user?.photoURL && user.photoURL.trim().length > 0) {
+    return user.photoURL;
+  }
+  const name = user?.displayName || user?.username || 'Player';
+  return getDefaultAvatarSvg(name);
+}
+
+/**
+ * Returns saved local user details
+ */
+export function getSavedUsername(): string {
+  return localStorage.getItem('damma-online-username') || '';
+}
+
+export function getSavedDisplayName(): string {
+  return localStorage.getItem('damma-online-displayname') || getSavedUsername();
+}
+
+export function getSavedPhotoURL(): string {
+  return localStorage.getItem('damma-online-photourl') || '';
+}
+
+export function getSavedFavoriteRule(): string {
+  return localStorage.getItem('damma-online-favoriterule') || 'Ethiopian Damma (Forced Capture)';
+}
+
+/**
+ * Fetches user profile by UID from Firestore
+ */
+export async function getUserProfile(uid: string): Promise<UserProfile | null> {
+  await ensureAuth();
+  const userRef = doc(db, 'users', uid);
+  const snap = await getDoc(userRef);
+  if (!snap.exists()) return null;
+  return snap.data() as UserProfile;
+}
+
+/**
  * Checks if username is taken in Firebase Firestore
  */
 export async function isUsernameAvailable(username: string): Promise<boolean> {
@@ -49,10 +132,96 @@ export async function isUsernameAvailable(username: string): Promise<boolean> {
 }
 
 /**
- * Returns saved local username
+ * Updates full user profile (Display Name, Photo URL, Favorite Rule, Username)
  */
-export function getSavedUsername(): string {
-  return localStorage.getItem('damma-online-username') || '';
+export async function updateUserProfile(updates: {
+  displayName?: string;
+  photoURL?: string;
+  favoriteRule?: string;
+  username?: string;
+}): Promise<{ success: boolean; message: string }> {
+  const user = await ensureAuth();
+  const userRef = doc(db, 'users', user.uid);
+  const userSnap = await getDoc(userRef);
+  const existing = userSnap.exists() ? userSnap.data() : {};
+
+  const payload: any = {};
+
+  // 1. Handle Display Name update if provided
+  if (updates.displayName !== undefined) {
+    const trimmedDN = updates.displayName.trim();
+    const dnValidation = validateDisplayNameFormat(trimmedDN);
+    if (!dnValidation.valid) {
+      return { success: false, message: dnValidation.message };
+    }
+    payload.displayName = trimmedDN;
+    localStorage.setItem('damma-online-displayname', trimmedDN);
+  }
+
+  // 2. Handle Photo URL update if provided
+  if (updates.photoURL !== undefined) {
+    payload.photoURL = updates.photoURL;
+    localStorage.setItem('damma-online-photourl', updates.photoURL);
+  }
+
+  // 3. Handle Favorite Rule update if provided
+  if (updates.favoriteRule !== undefined) {
+    payload.favoriteRule = updates.favoriteRule;
+    localStorage.setItem('damma-online-favoriterule', updates.favoriteRule);
+  }
+
+  // 4. Handle Username change if provided
+  if (updates.username !== undefined) {
+    const trimmedUN = updates.username.trim();
+    const currentUN = existing.username || getSavedUsername();
+
+    if (trimmedUN.toLowerCase() !== currentUN.toLowerCase()) {
+      const unValidation = validateUsernameFormat(trimmedUN);
+      if (!unValidation.valid) {
+        return { success: false, message: unValidation.message };
+      }
+
+      const available = await isUsernameAvailable(trimmedUN);
+      if (!available) {
+        return { success: false, message: 'Username is already taken by another player.' };
+      }
+
+      const newLower = trimmedUN.toLowerCase();
+      const oldLower = currentUN ? currentUN.toLowerCase() : null;
+
+      // Claim new username
+      const newUsernameRef = doc(db, 'usernames', newLower);
+      await setDoc(newUsernameRef, {
+        uid: user.uid,
+        username: trimmedUN,
+        createdAt: serverTimestamp()
+      });
+
+      // Delete old username registry
+      if (oldLower && oldLower !== newLower) {
+        try {
+          const oldRef = doc(db, 'usernames', oldLower);
+          await deleteDoc(oldRef);
+        } catch (err) {
+          console.warn('Failed to remove old username registry:', err);
+        }
+      }
+
+      payload.username = trimmedUN;
+      payload.usernameLower = newLower;
+      localStorage.setItem('damma-online-username', trimmedUN);
+    }
+  }
+
+  payload.lastSeen = serverTimestamp();
+
+  try {
+    await updateDoc(userRef, payload);
+    return { success: true, message: 'Profile updated successfully!' };
+  } catch (err: any) {
+    console.error('Failed to update profile:', err);
+    return { success: false, message: err?.message || 'Failed to update profile.' };
+  }
 }
 
 /**
