@@ -386,3 +386,110 @@ export async function findUserByUsername(searchUsername: string): Promise<UserPr
 
   return userSnap.data() as UserProfile;
 }
+
+/**
+ * Saves completed daily challenge result to Firestore user profile & subcollection
+ */
+export async function saveDailyChallengeToFirestore(
+  dateStr: string,
+  data: { puzzleId: string; title: string; difficulty: string; moves: number; timeMs: number },
+  streakCount: number
+) {
+  try {
+    const user = await ensureAuth();
+    if (!user || !user.uid) {
+      queuePendingDailySync(dateStr, data, streakCount);
+      return;
+    }
+
+    // 1. Save detail document in subcollection users/{uid}/dailyChallenges/{dateStr}
+    const challengeRef = doc(db, 'users', user.uid, 'dailyChallenges', dateStr);
+    await setDoc(challengeRef, {
+      dateStr,
+      puzzleId: data.puzzleId,
+      title: data.title,
+      difficulty: data.difficulty,
+      moves: data.moves,
+      timeMs: data.timeMs,
+      completedAt: serverTimestamp()
+    }, { merge: true });
+
+    // 2. Update summary metrics on user document
+    const userRef = doc(db, 'users', user.uid);
+    const snap = await getDoc(userRef);
+    if (snap.exists()) {
+      const currentStats = snap.data();
+      const highestStreak = Math.max(streakCount, currentStats.highestDailyStreak || 0);
+      const totalSolved = (currentStats.totalDailySolved || 0) + 1;
+
+      await updateDoc(userRef, {
+        dailyStreak: streakCount,
+        highestDailyStreak: highestStreak,
+        totalDailySolved: totalSolved,
+        lastDailySolvedDate: dateStr
+      });
+    }
+
+    // After successful sync, trigger flush for any older pending syncs
+    syncPendingDailyChallenges();
+  } catch (e) {
+    console.warn('Non-critical: Failed to sync daily challenge to Firestore, saving offline:', e);
+    queuePendingDailySync(dateStr, data, streakCount);
+  }
+}
+
+function queuePendingDailySync(dateStr: string, data: any, streakCount: number) {
+  try {
+    const raw = localStorage.getItem('damma_pending_daily_sync') || '[]';
+    const list = JSON.parse(raw);
+    if (!list.some((item: any) => item.dateStr === dateStr)) {
+      list.push({ dateStr, data, streakCount });
+      localStorage.setItem('damma_pending_daily_sync', JSON.stringify(list));
+    }
+  } catch (e) {
+    console.warn('Failed to queue pending daily sync:', e);
+  }
+}
+
+export async function syncPendingDailyChallenges() {
+  try {
+    const raw = localStorage.getItem('damma_pending_daily_sync');
+    if (!raw) return;
+    const pendingList = JSON.parse(raw);
+    if (!Array.isArray(pendingList) || pendingList.length === 0) return;
+
+    const remaining: any[] = [];
+    for (const item of pendingList) {
+      try {
+        const user = getCurrentUser();
+        if (user && user.uid) {
+          const challengeRef = doc(db, 'users', user.uid, 'dailyChallenges', item.dateStr);
+          await setDoc(challengeRef, {
+            dateStr: item.dateStr,
+            puzzleId: item.data.puzzleId,
+            title: item.data.title,
+            difficulty: item.data.difficulty,
+            moves: item.data.moves,
+            timeMs: item.data.timeMs,
+            completedAt: serverTimestamp()
+          }, { merge: true });
+        } else {
+          remaining.push(item);
+        }
+      } catch (e) {
+        remaining.push(item);
+      }
+    }
+    if (remaining.length > 0) {
+      localStorage.setItem('damma_pending_daily_sync', JSON.stringify(remaining));
+    } else {
+      localStorage.removeItem('damma_pending_daily_sync');
+    }
+  } catch (e) {
+    console.warn('Failed to sync pending daily challenges:', e);
+  }
+}
+
+(window as any).syncDailyChallengeToFirestore = saveDailyChallengeToFirestore;
+(window as any).syncPendingDailyChallenges = syncPendingDailyChallenges;
+

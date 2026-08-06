@@ -12,6 +12,7 @@ export interface Invitation {
   toUid: string;
   toUsername: string;
   status: 'pending' | 'accepted' | 'declined' | 'cancelled';
+  timeControl?: number;
   roomId?: string;
   createdAt?: any;
 }
@@ -39,7 +40,7 @@ export function createInitialBoardData(): number[][] {
 /**
  * Searches for target username and creates direct game invitation
  */
-export async function invitePlayerByUsername(targetUsername: string): Promise<{
+export async function invitePlayerByUsername(targetUsername: string, timeControl: number = 30): Promise<{
   success: boolean;
   message: string;
   invitationId?: string;
@@ -74,6 +75,7 @@ export async function invitePlayerByUsername(targetUsername: string): Promise<{
     toUid: targetProfile.uid,
     toUsername: targetProfile.username,
     toUsernameLower: targetProfile.usernameLower,
+    timeControl: timeControl ?? 30,
     status: 'pending',
     createdAt: serverTimestamp()
   });
@@ -174,6 +176,8 @@ export async function acceptInvitation(invitation: Invitation): Promise<string> 
     p2Count: 12,
     totalMoves: 0,
     status: 'playing',
+    timeControl: invitation.timeControl ?? 30,
+    turnStartedAt: Date.now(),
     winnerUid: null,
     winReason: null,
     rematchRequestedBy: [],
@@ -211,7 +215,8 @@ let matchmakingQueueUnsub: Unsubscribe | null = null;
  */
 export async function startRandomMatchmaking(
   onMatched: (roomId: string) => void,
-  onError: (err: string) => void
+  onError: (err: string) => void,
+  timeControl: number = 30
 ) {
   const user = await ensureAuth();
   const myUsername = getSavedUsername();
@@ -230,6 +235,7 @@ export async function startRandomMatchmaking(
     uid: user.uid,
     username: myUsername,
     status: 'searching',
+    timeControl: timeControl ?? 30,
     createdAt: serverTimestamp()
   });
 
@@ -269,6 +275,7 @@ export async function startRandomMatchmaking(
       const initialBoard = createInitialBoardData();
 
       // Create room: opponent = Player 1, current user = Player 2
+      const matchedTimeControl = opponent.timeControl || timeControl || 30;
       const roomRef = doc(db, 'rooms', roomId);
       await setDoc(roomRef, {
         roomId,
@@ -282,6 +289,8 @@ export async function startRandomMatchmaking(
         p2Count: 12,
         totalMoves: 0,
         status: 'playing',
+        timeControl: matchedTimeControl,
+        turnStartedAt: Date.now(),
         winnerUid: null,
         winReason: null,
         rematchRequestedBy: [],

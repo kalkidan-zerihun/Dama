@@ -1,3 +1,5 @@
+import { doc, updateDoc } from 'firebase/firestore';
+import { db, ensureAuth, getCurrentUser } from './firebase';
 import { 
   getSavedUsername, setUsername, validateUsernameFormat, 
   initPresence, updatePresenceStatus, getUserAvatarUrl,
@@ -13,7 +15,6 @@ import {
 import { 
   subscribeToRoom, sendOnlineMove, leaveOnlineRoom, requestOnlineRematch, RoomState 
 } from './roomService';
-import { ensureAuth, getCurrentUser } from './firebase';
 import {
   getRankDetails, processRankedMatchRating, subscribeToLeaderboard,
   getUserRankProfile, getUserGlobalRank, getUserMatchHistory,
@@ -36,6 +37,7 @@ let roomUnsubscribe: (() => void) | null = null;
 let activeSentInvitationId: string | null = null;
 let sentInvitationUnsub: (() => void) | null = null;
 let isOnlineMatchActive = false;
+let selectedTimeControl = 30; // Default 30s per move
 
 // Global online state getters
 export function isOnlineGame(): boolean {
@@ -112,7 +114,18 @@ export function initOnlineUI() {
     });
   }
 
-  // 3. Choice Modal Options: By Username vs Random
+  // 3. Choice Modal Options: Time Control Selection & Mode Choice
+  const tcBtns = document.querySelectorAll('.tc-btn');
+  tcBtns.forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      playSound('click');
+      tcBtns.forEach(b => b.classList.remove('active'));
+      const target = e.currentTarget as HTMLElement;
+      target.classList.add('active');
+      selectedTimeControl = parseInt(target.getAttribute('data-sec') || '30', 10);
+    });
+  });
+
   const choiceUsernameBtn = document.getElementById('online-choice-username-btn');
   const choiceRandomBtn = document.getElementById('online-choice-random-btn');
 
@@ -151,7 +164,7 @@ export function initOnlineUI() {
       searchMsg.textContent = 'Searching player in Firebase...';
       searchMsg.style.color = '#ffd700';
 
-      const res = await invitePlayerByUsername(target);
+      const res = await invitePlayerByUsername(target, selectedTimeControl);
       if (!res.success) {
         searchMsg.textContent = res.message;
         searchMsg.style.color = '#ef4444';
@@ -818,7 +831,8 @@ function showRandomMatchModal() {
     },
     (err) => {
       if (statusText) statusText.textContent = err;
-    }
+    },
+    selectedTimeControl
   );
 }
 
@@ -895,6 +909,9 @@ export async function launchOnlineMatch(roomId: string) {
   initChatUI(roomId);
 
   const currentUser = await ensureAuth();
+
+  // Start real-time move timer loop
+  startOnlineTimerLoop(currentUser.uid);
 
   // Subscribe to real-time room updates
   if (roomUnsubscribe) roomUnsubscribe();
@@ -1066,7 +1083,9 @@ async function showRichOnlineGameOverModal(room: RoomState, myUid: string, ratin
   }
 
   if (descEl) {
-    if (isWinner) {
+    if (room.winReason === 'timeout') {
+      descEl.textContent = isWinner ? 'Opponent ran out of time! Victory by timeout.' : 'You ran out of time! Defeat by timeout.';
+    } else if (isWinner) {
       descEl.textContent = 'Congratulations on winning the match!';
     } else if (isDraw) {
       descEl.textContent = 'A well-fought Ethiopian Damma draw!';
@@ -1162,8 +1181,137 @@ export function getOnlineUsernames() {
 
 (window as any).getOnlineUsernames = getOnlineUsernames;
 
+let timerInterval: any = null;
+let lastTickSecond: number = -1;
+
+function startOnlineTimerLoop(myUid: string) {
+  if (timerInterval) clearInterval(timerInterval);
+
+  timerInterval = setInterval(() => {
+    if (!latestRoomState || !isOnlineMatchActive) {
+      hideOnlineTimerBadges();
+      return;
+    }
+
+    const room = latestRoomState;
+    const timeControl = room.timeControl ?? 30;
+
+    const p1TimerBadge = document.getElementById('p1-timer-badge');
+    const p2TimerBadge = document.getElementById('p2-timer-badge');
+    const p1TimerText = document.getElementById('p1-timer-text');
+    const p2TimerText = document.getElementById('p2-timer-text');
+
+    if (timeControl === 0) {
+      // No Timer
+      if (p1TimerBadge) p1TimerBadge.style.display = 'none';
+      if (p2TimerBadge) p2TimerBadge.style.display = 'none';
+      return;
+    }
+
+    if (p1TimerBadge) p1TimerBadge.style.display = 'inline-flex';
+    if (p2TimerBadge) p2TimerBadge.style.display = 'inline-flex';
+
+    if (room.status !== 'playing') {
+      if (p1TimerBadge) p1TimerBadge.className = 'player-timer-badge';
+      if (p2TimerBadge) p2TimerBadge.className = 'player-timer-badge';
+      return;
+    }
+
+    const now = Date.now();
+    const turnStartedAt = room.turnStartedAt || now;
+    const elapsedSec = Math.floor((now - turnStartedAt) / 1000);
+    const remainingSec = Math.max(0, timeControl - elapsedSec);
+
+    const activeTurn = room.currentTurn; // 1 = P1, -1 = P2
+    const formatted = formatTime(remainingSec);
+
+    if (activeTurn === 1) {
+      if (p1TimerText) p1TimerText.textContent = formatted;
+      if (p2TimerText) p2TimerText.textContent = formatTime(timeControl);
+
+      p1TimerBadge?.classList.add('active-timer');
+      p2TimerBadge?.classList.remove('active-timer', 'timer-green', 'timer-yellow', 'timer-red', 'timer-pulse');
+
+      applyTimerClasses(p1TimerBadge, remainingSec, timeControl);
+    } else {
+      if (p2TimerText) p2TimerText.textContent = formatted;
+      if (p1TimerText) p1TimerText.textContent = formatTime(timeControl);
+
+      p2TimerBadge?.classList.add('active-timer');
+      p1TimerBadge?.classList.remove('active-timer', 'timer-green', 'timer-yellow', 'timer-red', 'timer-pulse');
+
+      applyTimerClasses(p2TimerBadge, remainingSec, timeControl);
+    }
+
+    if (remainingSec <= 5 && remainingSec > 0) {
+      if (lastTickSecond !== remainingSec) {
+        lastTickSecond = remainingSec;
+        playSound('tick');
+      }
+    } else {
+      lastTickSecond = -1;
+    }
+
+    if (remainingSec <= 0 && room.status === 'playing') {
+      handleTimeoutLoss(room, myUid);
+    }
+  }, 200);
+}
+
+function applyTimerClasses(el: HTMLElement | null, remaining: number, total: number) {
+  if (!el) return;
+  const pct = remaining / total;
+  el.classList.remove('timer-green', 'timer-yellow', 'timer-red', 'timer-pulse');
+
+  if (pct > 0.5) {
+    el.classList.add('timer-green');
+  } else if (pct > 0.2) {
+    el.classList.add('timer-yellow');
+  } else {
+    el.classList.add('timer-red');
+    if (remaining <= 5) {
+      el.classList.add('timer-pulse');
+    }
+  }
+}
+
+function formatTime(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+async function handleTimeoutLoss(room: RoomState, myUid: string) {
+  if (room.status !== 'playing') return;
+
+  const winnerUid = room.currentTurn === 1 ? room.player2Uid : room.player1Uid;
+
+  try {
+    const roomRef = doc(db, 'rooms', room.roomId);
+    await updateDoc(roomRef, {
+      status: 'ended',
+      winnerUid: winnerUid,
+      winReason: 'timeout'
+    });
+  } catch (e) {
+    console.warn('Error declaring timeout winner:', e);
+  }
+}
+
+function hideOnlineTimerBadges() {
+  const p1 = document.getElementById('p1-timer-badge');
+  const p2 = document.getElementById('p2-timer-badge');
+  if (p1) p1.style.display = 'none';
+  if (p2) p2.style.display = 'none';
+}
+
 export function cleanupOnlineMatch() {
   cleanupChatUI();
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  hideOnlineTimerBadges();
   if (roomUnsubscribe) {
     roomUnsubscribe();
     roomUnsubscribe = null;

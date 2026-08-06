@@ -19,6 +19,8 @@ export interface RoomState {
   p2Count: number;
   totalMoves: number;
   status: 'playing' | 'ended' | 'abandoned';
+  timeControl?: number; // 0 = No timer, 15 = 15s, 30 = 30s, 60 = 1m, 120 = 2m
+  turnStartedAt?: number; // Timestamp in ms when turn started
   winnerUid?: string | null;
   winReason?: string | null;
   rematchRequestedBy: string[];
@@ -55,14 +57,18 @@ export function subscribeToRoom(
       roomId: data.roomId,
       player1Uid: data.player1Uid,
       player1Username: data.player1Username,
+      player1Rating: data.player1Rating,
       player2Uid: data.player2Uid,
       player2Username: data.player2Username,
+      player2Rating: data.player2Rating,
       currentTurn: data.currentTurn,
       board: parsedBoard,
       p1Count: data.p1Count,
       p2Count: data.p2Count,
       totalMoves: data.totalMoves,
       status: data.status,
+      timeControl: data.timeControl ?? 30,
+      turnStartedAt: data.turnStartedAt || (data.updatedAt?.toMillis ? data.updatedAt.toMillis() : Date.now()),
       winnerUid: data.winnerUid,
       winReason: data.winReason,
       rematchRequestedBy: data.rematchRequestedBy || [],
@@ -157,6 +163,7 @@ export async function sendOnlineMove(
     p2Count,
     currentTurn: nextTurn,
     totalMoves,
+    turnStartedAt: Date.now(),
     updatedAt: serverTimestamp()
   };
 
@@ -230,6 +237,7 @@ export async function requestOnlineRematch(roomId: string): Promise<boolean> {
       winnerUid: null,
       winReason: null,
       rematchRequestedBy: [],
+      turnStartedAt: Date.now(),
       updatedAt: serverTimestamp()
     });
     return true;

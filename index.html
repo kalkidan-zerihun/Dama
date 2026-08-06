@@ -172,14 +172,26 @@
                 <div class="scores-bar">
                     <div class="score-card player1">
                         <div class="score-indicator neon-bg-blue"></div>
-                        <div class="score-info">
-                            <span class="score-label" data-i18n="player_label_you">PLAYER (YOU)</span>
+                        <div class="score-info" style="flex: 1;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                                <span class="score-label" data-i18n="player_label_you">PLAYER (YOU)</span>
+                                <div id="p1-timer-badge" class="player-timer-badge" style="display: none;">
+                                    <span class="timer-icon">⏱️</span>
+                                    <span id="p1-timer-text">--:--</span>
+                                </div>
+                            </div>
                             <span id="p1-score" class="score-value neon-text-blue">12</span>
                         </div>
                     </div>
                     <div class="score-card player2">
-                        <div class="score-info">
-                            <span id="p2-label" class="score-label">CPU</span>
+                        <div class="score-info" style="flex: 1;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                                <span id="p2-label" class="score-label">CPU</span>
+                                <div id="p2-timer-badge" class="player-timer-badge" style="display: none;">
+                                    <span class="timer-icon">⏱️</span>
+                                    <span id="p2-timer-text">--:--</span>
+                                </div>
+                            </div>
                             <span id="p2-score" class="score-value neon-text-pink">12</span>
                         </div>
                         <div class="score-indicator neon-bg-pink"></div>
@@ -921,7 +933,10 @@
                     <span style="font-size: 1.5rem;">👑</span>
                     <div>
                         <h3 style="font-family: 'Cinzel', serif; color: #ffd700; margin: 0; font-size: 1.2rem;" data-i18n="daily_challenge_title">DAILY IMPERIAL CHALLENGE</h3>
-                        <span id="daily-date-badge" style="font-size: 0.75rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px;">TODAY'S PUZZLE</span>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 2px;">
+                            <span id="daily-date-badge" style="font-size: 0.75rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px;">TODAY'S PUZZLE</span>
+                            <span id="daily-streak-badge" style="font-size: 0.75rem; color: #f59e0b; font-weight: 700; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); padding: 2px 8px; border-radius: 10px;">🔥 STREAK: 0 DAYS</span>
+                        </div>
                     </div>
                 </div>
                 <button id="close-daily-modal-btn" class="settings-close-btn" aria-label="Close Daily Challenge">✕</button>
@@ -970,8 +985,8 @@
                         <span class="stat-value gold" id="daily-solved-puzzle-name">Axumite Strike</span>
                     </div>
                     <div class="daily-stat-box">
-                        <span class="stat-label">STATUS</span>
-                        <span class="stat-value gold">SOLVED 100%</span>
+                        <span class="stat-label">STREAK</span>
+                        <span class="stat-value gold" id="daily-solved-streak-val">🔥 1 DAY</span>
                     </div>
                 </div>
 
@@ -1018,6 +1033,18 @@
             </div>
             <div class="modal-body" style="padding: 20px; display: flex; flex-direction: column; gap: 14px;">
                 <p style="font-size: 0.88rem; color: #e2e8f0; margin: 0; line-height: 1.5;">Choose how you would like to start your online Ethiopian Damma match:</p>
+
+                <!-- ⏱️ TIME CONTROL SELECTOR -->
+                <div class="time-control-picker" style="padding: 12px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px;">
+                    <label style="display: block; font-size: 0.75rem; color: #60a5fa; font-family: 'Cinzel', serif; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">⏱️ TIME CONTROL PER MOVE</label>
+                    <div id="tc-options-container" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <button class="tc-btn" data-sec="0">No Timer</button>
+                        <button class="tc-btn" data-sec="15">15s</button>
+                        <button class="tc-btn active" data-sec="30">30s</button>
+                        <button class="tc-btn" data-sec="60">1 Min</button>
+                        <button class="tc-btn" data-sec="120">2 Min</button>
+                    </div>
+                </div>
 
                 <button id="online-choice-username-btn" class="online-mode-card username-mode">
                     <div class="card-icon-box">🎯</div>

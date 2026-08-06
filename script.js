@@ -1586,7 +1586,7 @@ function createGame() {
     }
 
     function initBoard(forceFresh = false) {
-        const challengeBoardStr = localStorage.getItem('damma-challenge-board');
+        const challengeBoardStr = localStorage.getItem('damma-challenge-board') || (forceFresh ? localStorage.getItem('damma-active-daily-challenge') : null);
         const activeMetaStr = localStorage.getItem('damma-active-daily-meta');
         if (activeMetaStr) {
             try {
@@ -1600,7 +1600,7 @@ function createGame() {
             try {
                 const challengeData = JSON.parse(challengeBoardStr);
                 if (challengeData && Array.isArray(challengeData.board) && challengeData.board.length === 8 && challengeData.board.every(row => Array.isArray(row) && row.length === 8)) {
-                    board = challengeData.board;
+                    board = challengeData.board.map(r => [...r]);
                     turn = challengeData.turn || 1;
                     p1Count = challengeData.p1Count;
                     p2Count = challengeData.p2Count;
@@ -1614,12 +1614,16 @@ function createGame() {
                     isCpuThinking = false;
 
                     if (challengeData.dailyId && challengeData.todayStr) {
-                        activeDailyMeta = { dailyId: challengeData.dailyId, todayStr: challengeData.todayStr, title: challengeData.title || "Daily Challenge" };
+                        activeDailyMeta = {
+                            dailyId: challengeData.dailyId,
+                            todayStr: challengeData.todayStr,
+                            title: challengeData.title || "Daily Challenge",
+                            difficulty: challengeData.difficulty || "medium"
+                        };
                         localStorage.setItem('damma-active-daily-meta', JSON.stringify(activeDailyMeta));
                     }
 
                     localStorage.removeItem('damma-challenge-board'); // Consumed
-
                     updateHUD();
                     renderMoveLog();
                     scanMandatoryCaptures();
@@ -2668,11 +2672,11 @@ function createGame() {
             const metaStr = localStorage.getItem('damma-active-daily-meta');
             const meta = activeDailyMeta || (metaStr ? JSON.parse(metaStr) : null);
             if (meta && meta.dailyId && meta.todayStr) {
-                localStorage.setItem(`damma-daily-${meta.todayStr}-${meta.dailyId}`, 'true');
+                const matchTimeMs = Date.now() - startTime;
                 localStorage.removeItem('damma-active-daily-meta');
                 localStorage.removeItem('damma-active-daily-challenge');
                 activeDailyMeta = null;
-                DailyChallengeSystem.showSuccessModal(meta);
+                DailyChallengeSystem.showSuccessModal(meta, totalMoves, matchTimeMs);
                 return;
             }
             if (isVsCpu) {
@@ -5451,9 +5455,9 @@ const DailyChallengeSystem = {
                 desc: 'Execute a clean double jump sweep with your gold piece to capture both CPU pieces!',
                 setup: () => {
                     const b = Array(8).fill(null).map(() => Array(8).fill(0));
-                    b[5][3] = 1;  // Player 1
-                    b[4][3] = -1; // CPU
-                    b[2][3] = -1; // CPU
+                    b[5][2] = 1;  // Player 1 (5+2=7)
+                    b[4][3] = -1; // CPU (4+3=7)
+                    b[2][3] = -1; // CPU (2+3=5)
                     return { board: b, turn: 1, p1Count: 1, p2Count: 2 };
                 }
             },
@@ -5463,21 +5467,21 @@ const DailyChallengeSystem = {
                 desc: 'Perform a double jump sweep to promote into row 0 and clear the CPU!',
                 setup: () => {
                     const b = Array(8).fill(null).map(() => Array(8).fill(0));
-                    b[6][2] = 1;  // Player 1
-                    b[5][2] = -1; // CPU
-                    b[3][2] = -1; // CPU
+                    b[6][1] = 1;  // Player 1 (6+1=7)
+                    b[5][2] = -1; // CPU (5+2=7)
+                    b[3][2] = -1; // CPU (3+2=5)
                     return { board: b, turn: 1, p1Count: 1, p2Count: 2 };
                 }
             },
             {
                 id: 'easy_3',
-                title: 'Semien Mountain Strike',
+                title: 'Semien Mountain Sweep',
                 desc: 'Sweep through CPU defenses with a double jump sequence!',
                 setup: () => {
                     const b = Array(8).fill(null).map(() => Array(8).fill(0));
-                    b[5][4] = 1;  // Player 1
-                    b[5][3] = -1; // CPU
-                    b[5][1] = -1; // CPU
+                    b[5][4] = 1;  // Player 1 (5+4=9)
+                    b[4][5] = -1; // CPU (4+5=9)
+                    b[2][5] = -1; // CPU (2+5=7)
                     return { board: b, turn: 1, p1Count: 1, p2Count: 2 };
                 }
             },
@@ -5487,20 +5491,20 @@ const DailyChallengeSystem = {
                 desc: 'Capture the CPU defender to claim total victory on the board!',
                 setup: () => {
                     const b = Array(8).fill(null).map(() => Array(8).fill(0));
-                    b[4][3] = 1;  // Player 1
-                    b[3][3] = -1; // CPU
+                    b[4][3] = 1;  // Player 1 (4+3=7)
+                    b[3][2] = -1; // CPU (3+2=5)
                     return { board: b, turn: 1, p1Count: 1, p2Count: 1 };
                 }
             },
             {
                 id: 'easy_5',
                 title: 'Bale Ridge Double Leap',
-                desc: 'Jump over two CPU pieces along the column to finish the puzzle!',
+                desc: 'Jump over two CPU pieces along the diagonals to finish the puzzle!',
                 setup: () => {
                     const b = Array(8).fill(null).map(() => Array(8).fill(0));
-                    b[6][4] = 1;  // Player 1
-                    b[5][4] = -1; // CPU
-                    b[3][4] = -1; // CPU
+                    b[6][3] = 1;  // Player 1 (6+3=9)
+                    b[5][4] = -1; // CPU (5+4=9)
+                    b[3][4] = -1; // CPU (3+4=7)
                     return { board: b, turn: 1, p1Count: 1, p2Count: 2 };
                 }
             }
@@ -5513,10 +5517,10 @@ const DailyChallengeSystem = {
                 desc: 'Execute a triple jump sequence across the board and promote to King!',
                 setup: () => {
                     const b = Array(8).fill(null).map(() => Array(8).fill(0));
-                    b[7][3] = 1;  // Player 1
-                    b[6][3] = -1; // CPU
-                    b[4][3] = -1; // CPU
-                    b[2][3] = -1; // CPU
+                    b[7][2] = 1;  // Player 1 (7+2=9)
+                    b[6][3] = -1; // CPU (6+3=9)
+                    b[4][3] = -1; // CPU (4+3=7)
+                    b[2][3] = -1; // CPU (2+3=5)
                     return { board: b, turn: 1, p1Count: 1, p2Count: 3 };
                 }
             },
@@ -5526,10 +5530,10 @@ const DailyChallengeSystem = {
                 desc: 'Capture all CPU defenders in an L-shaped jump maneuver!',
                 setup: () => {
                     const b = Array(8).fill(null).map(() => Array(8).fill(0));
-                    b[6][1] = 1;  // Player 1
-                    b[5][1] = -1; // CPU
-                    b[3][1] = -1; // CPU
-                    b[2][2] = -1; // CPU
+                    b[6][1] = 1;  // Player 1 (6+1=7)
+                    b[5][2] = -1; // CPU (5+2=7)
+                    b[3][2] = -1; // CPU (3+2=5)
+                    b[1][2] = -1; // CPU (1+2=3)
                     return { board: b, turn: 1, p1Count: 1, p2Count: 3 };
                 }
             },
@@ -5539,33 +5543,34 @@ const DailyChallengeSystem = {
                 desc: 'Execute a double jump that reaches row 0 for King promotion!',
                 setup: () => {
                     const b = Array(8).fill(null).map(() => Array(8).fill(0));
-                    b[5][5] = 1;  // Player 1
-                    b[4][5] = -1; // CPU
-                    b[2][5] = -1; // CPU
+                    b[5][6] = 1;  // Player 1 (5+6=11)
+                    b[4][5] = -1; // CPU (4+5=9)
+                    b[2][5] = -1; // CPU (2+5=7)
                     return { board: b, turn: 1, p1Count: 1, p2Count: 2 };
                 }
             },
             {
                 id: 'med_4',
-                title: 'Rift Valley Sideway Sweep',
-                desc: 'Eliminate CPU stones with a double horizontal leap!',
+                title: 'Rift Valley Zigzag Capture',
+                desc: 'Eliminate CPU stones with a multi-jump sequence!',
                 setup: () => {
                     const b = Array(8).fill(null).map(() => Array(8).fill(0));
-                    b[4][6] = 1;  // Player 1
-                    b[4][5] = -1; // CPU
-                    b[4][3] = -1; // CPU
-                    return { board: b, turn: 1, p1Count: 1, p2Count: 2 };
+                    b[6][5] = 1;  // Player 1 (6+5=11)
+                    b[5][4] = -1; // CPU (5+4=9)
+                    b[3][2] = -1; // CPU (3+2=5)
+                    b[1][2] = -1; // CPU (1+2=3)
+                    return { board: b, turn: 1, p1Count: 1, p2Count: 3 };
                 }
             },
             {
                 id: 'med_5',
-                title: 'Lake Tana Cross Capture',
+                title: 'Lake Tana Cross Sweep',
                 desc: 'Infiltrate the CPU row by jumping both blocking pieces!',
                 setup: () => {
                     const b = Array(8).fill(null).map(() => Array(8).fill(0));
-                    b[5][2] = 1;  // Player 1
-                    b[4][2] = -1; // CPU
-                    b[2][2] = -1; // CPU
+                    b[6][3] = 1;  // Player 1 (6+3=9)
+                    b[5][2] = -1; // CPU (5+2=7)
+                    b[3][2] = -1; // CPU (3+2=5)
                     return { board: b, turn: 1, p1Count: 1, p2Count: 2 };
                 }
             }
@@ -5575,13 +5580,13 @@ const DailyChallengeSystem = {
             {
                 id: 'hard_1',
                 title: 'Imperial Axum Flying King Sweep',
-                desc: 'Use your Flying King to sweep across 3 CPU pieces along the column!',
+                desc: 'Use your Flying King to sweep across 3 CPU pieces along the diagonal!',
                 setup: () => {
                     const b = Array(8).fill(null).map(() => Array(8).fill(0));
-                    b[7][1] = 2;  // Player 1 Flying King
-                    b[5][1] = -1; // CPU
-                    b[3][1] = -1; // CPU
-                    b[1][1] = -1; // CPU
+                    b[7][0] = 2;  // Player 1 Flying King (7+0=7)
+                    b[5][2] = -1; // CPU (5+2=7)
+                    b[3][4] = -1; // CPU (3+4=7)
+                    b[1][6] = -1; // CPU (1+6=7)
                     return { board: b, turn: 1, p1Count: 1, p2Count: 3 };
                 }
             },
@@ -5591,50 +5596,136 @@ const DailyChallengeSystem = {
                 desc: 'Execute a 4-piece chain capture across the board in 1 master turn!',
                 setup: () => {
                     const b = Array(8).fill(null).map(() => Array(8).fill(0));
-                    b[7][0] = 1;  // Player 1
-                    b[6][0] = -1; // CPU
-                    b[4][0] = -1; // CPU
-                    b[2][0] = -1; // CPU
-                    b[1][1] = -1; // CPU
+                    b[7][6] = 1;  // Player 1 (7+6=13)
+                    b[6][5] = -1; // CPU (6+5=11)
+                    b[4][5] = -1; // CPU (4+5=9)
+                    b[2][5] = -1; // CPU (2+5=7)
+                    b[1][2] = -1; // CPU (1+2=3)
                     return { board: b, turn: 1, p1Count: 1, p2Count: 4 };
                 }
             },
             {
                 id: 'hard_3',
                 title: 'Fasil Ghebbi Royal Checkmate',
-                desc: 'Command your King to clear 3 CPU units positioned on row 7!',
+                desc: 'Command your King to clear 3 CPU units along the diagonal!',
                 setup: () => {
                     const b = Array(8).fill(null).map(() => Array(8).fill(0));
-                    b[7][7] = 2;  // Player 1 King
-                    b[7][5] = -1; // CPU
-                    b[7][3] = -1; // CPU
-                    b[7][1] = -1; // CPU
+                    b[7][0] = 2;  // Player 1 King (7+0=7)
+                    b[6][1] = -1; // CPU (6+1=7)
+                    b[4][3] = -1; // CPU (4+3=7)
+                    b[2][5] = -1; // CPU (2+5=7)
                     return { board: b, turn: 1, p1Count: 1, p2Count: 3 };
                 }
             },
             {
                 id: 'hard_4',
                 title: 'Entoto Heights Royal Blitz',
-                desc: 'Use your Flying King to leap through 2 CPU defenders across the map!',
+                desc: 'Use your Flying King to leap through 3 CPU defenders across the map!',
                 setup: () => {
                     const b = Array(8).fill(null).map(() => Array(8).fill(0));
-                    b[6][0] = 2;  // Player 1 King
-                    b[4][2] = -1; // CPU
-                    b[2][4] = -1; // CPU
-                    return { board: b, turn: 1, p1Count: 1, p2Count: 2 };
+                    b[6][1] = 2;  // Player 1 King (6+1=7)
+                    b[4][3] = -1; // CPU (4+3=7)
+                    b[2][5] = -1; // CPU (2+5=7)
+                    b[2][1] = -1; // CPU (2+1=3)
+                    return { board: b, turn: 1, p1Count: 1, p2Count: 3 };
                 }
             }
         ]
     },
 
-    getDaySeed() {
-        const todayStr = new Date().toISOString().split('T')[0];
+    getTodayDateStr() {
+        const now = new Date();
+        const year = now.getUTCFullYear();
+        const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(now.getUTCDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    },
+
+    getDaySeed(dateStr) {
+        const s = dateStr || this.getTodayDateStr();
         let hash = 0;
-        for (let i = 0; i < todayStr.length; i++) {
-            hash = ((hash << 5) - hash) + todayStr.charCodeAt(i);
+        for (let i = 0; i < s.length; i++) {
+            hash = ((hash << 5) - hash) + s.charCodeAt(i);
             hash |= 0;
         }
         return Math.abs(hash);
+    },
+
+    getStreakData() {
+        try {
+            const raw = localStorage.getItem('damma_daily_streak_v2');
+            if (raw) {
+                const data = JSON.parse(raw);
+                if (data && typeof data.currentStreak === 'number') {
+                    return data;
+                }
+            }
+        } catch (e) {}
+        return { currentStreak: 0, highestStreak: 0, lastSolvedDate: '' };
+    },
+
+    saveStreakData(data) {
+        try {
+            localStorage.setItem('damma_daily_streak_v2', JSON.stringify(data));
+        } catch (e) {}
+    },
+
+    recordCompletion(puzzle, difficulty, moves, timeMs) {
+        const dateStr = this.getTodayDateStr();
+        const progressRaw = localStorage.getItem('damma_daily_progress_v2') || '{}';
+        let progress = {};
+        try {
+            progress = JSON.parse(progressRaw);
+        } catch (e) {}
+
+        const isNewCompletion = !progress[dateStr] || !progress[dateStr].completed;
+
+        progress[dateStr] = {
+            completed: true,
+            puzzleId: puzzle.id,
+            title: puzzle.title,
+            difficulty: difficulty,
+            moves: moves || 1,
+            timeMs: timeMs || 0,
+            completedAt: new Date().toISOString()
+        };
+        localStorage.setItem('damma_daily_progress_v2', JSON.stringify(progress));
+
+        // Legacy compatibility key
+        localStorage.setItem(`damma-daily-${dateStr}-${puzzle.id}`, 'true');
+
+        let streakData = this.getStreakData();
+        if (isNewCompletion) {
+            const lastDate = streakData.lastSolvedDate;
+            if (lastDate) {
+                const last = new Date(lastDate + 'T00:00:00Z');
+                const current = new Date(dateStr + 'T00:00:00Z');
+                const diffDays = Math.round((current.getTime() - last.getTime()) / (1000 * 3600 * 24));
+                if (diffDays === 1) {
+                    streakData.currentStreak++;
+                } else if (diffDays > 1) {
+                    streakData.currentStreak = 1;
+                }
+            } else {
+                streakData.currentStreak = 1;
+            }
+            streakData.lastSolvedDate = dateStr;
+            streakData.highestStreak = Math.max(streakData.highestStreak, streakData.currentStreak);
+            this.saveStreakData(streakData);
+        }
+
+        // Backend Sync
+        if (typeof window.syncDailyChallengeToFirestore === 'function') {
+            window.syncDailyChallengeToFirestore(dateStr, {
+                puzzleId: puzzle.id,
+                title: puzzle.title,
+                difficulty: difficulty,
+                moves: moves || 1,
+                timeMs: timeMs || 0
+            }, streakData.currentStreak);
+        }
+
+        return streakData;
     },
 
     validatePuzzleSolvability(puzzle) {
@@ -5642,42 +5733,57 @@ const DailyChallengeSystem = {
             if (!puzzle || typeof puzzle.setup !== 'function') return false;
             const data = puzzle.setup();
             if (!data || !data.board) return false;
-            
-            const queue = [{ board: data.board, turn: data.turn || 1, p1Count: data.p1Count, p2Count: data.p2Count, depth: 0 }];
+
+            // Verify all placed pieces are strictly on playable dark squares
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    if (data.board[r][c] !== 0 && (r + c) % 2 !== 1) {
+                        return false;
+                    }
+                }
+            }
+
+            const queue = [{
+                board: data.board,
+                turn: data.turn || 1,
+                p1Count: data.p1Count,
+                p2Count: data.p2Count,
+                depth: 0
+            }];
             const visited = new Set();
-            
+
             while (queue.length > 0) {
                 const state = queue.shift();
                 if (state.p2Count === 0) return true;
-                if (state.depth >= 6) continue;
-                
+                if (state.depth >= 8) continue;
+
                 const key = JSON.stringify(state.board) + '_' + state.turn;
                 if (visited.has(key)) continue;
                 visited.add(key);
-                
+
                 const moves = this.getMovesForState(state.board, state.turn);
                 if (moves.length === 0) {
-                    if (state.turn === -1) return true;
+                    if (state.turn === -1 && state.p1Count > 0) return true;
                     continue;
                 }
-                
+
                 for (const move of moves) {
                     const nextBoard = state.board.map(r => [...r]);
                     nextBoard[move.toR][move.toC] = nextBoard[move.fromR][move.fromC];
                     nextBoard[move.fromR][move.fromC] = 0;
                     let nextP1 = state.p1Count;
                     let nextP2 = state.p2Count;
-                    
+
                     if (move.isJump && move.capturedPiece) {
                         const capVal = nextBoard[move.capturedPiece.r][move.capturedPiece.c];
                         nextBoard[move.capturedPiece.r][move.capturedPiece.c] = 0;
                         if (Math.sign(capVal) === 1) nextP1--;
                         else if (Math.sign(capVal) === -1) nextP2--;
                     }
-                    
+
                     if (nextBoard[move.toR][move.toC] === 1 && move.toR === 0) nextBoard[move.toR][move.toC] = 2;
                     if (nextBoard[move.toR][move.toC] === -1 && move.toR === 7) nextBoard[move.toR][move.toC] = -2;
-                    
+
                     queue.push({
                         board: nextBoard,
                         turn: -state.turn,
@@ -5690,7 +5796,7 @@ const DailyChallengeSystem = {
             return false;
         } catch (e) {
             console.error("Error validating puzzle solvability:", e);
-            return true;
+            return false;
         }
     },
 
@@ -5782,7 +5888,8 @@ const DailyChallengeSystem = {
 
     getCurrentPuzzle(diff) {
         const pool = this.puzzles[diff] || this.puzzles.medium;
-        const seed = this.getDaySeed();
+        const dateStr = this.getTodayDateStr();
+        const seed = this.getDaySeed(dateStr);
         let index = seed % pool.length;
 
         for (let i = 0; i < pool.length; i++) {
@@ -5878,19 +5985,31 @@ const DailyChallengeSystem = {
         const badgeEl = document.getElementById('daily-challenge-badge');
         const statusEl = document.getElementById('daily-challenge-status');
         const dateBadge = document.getElementById('daily-date-badge');
+        const streakBadge = document.getElementById('daily-streak-badge');
         const launchBtn = document.getElementById('daily-launch-btn');
 
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = this.getTodayDateStr();
         if (dateBadge) {
-            const formattedDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
             dateBadge.textContent = `CHALLENGE FOR ${formattedDate.toUpperCase()}`;
+        }
+
+        const streakData = this.getStreakData();
+        if (streakBadge) {
+            streakBadge.textContent = `🔥 STREAK: ${streakData.currentStreak} DAY${streakData.currentStreak === 1 ? '' : 'S'}`;
         }
 
         if (titleEl) titleEl.textContent = puzzle.title;
         if (descEl) descEl.textContent = puzzle.desc;
         if (badgeEl) badgeEl.textContent = `${this.selectedDifficulty.toUpperCase()} PUZZLE`;
 
-        const isSolved = localStorage.getItem(`damma-daily-${todayStr}-${puzzle.id}`) === 'true';
+        const progressRaw = localStorage.getItem('damma_daily_progress_v2') || '{}';
+        let progress = {};
+        try { progress = JSON.parse(progressRaw); } catch (e) {}
+
+        const isSolved = (progress[todayStr] && progress[todayStr].completed) ||
+                         localStorage.getItem(`damma-daily-${todayStr}-${puzzle.id}`) === 'true';
 
         if (statusEl) {
             if (isSolved) {
@@ -5910,7 +6029,7 @@ const DailyChallengeSystem = {
     launchSelectedChallenge() {
         const puzzle = this.getCurrentPuzzle(this.selectedDifficulty);
         const data = puzzle.setup();
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = this.getTodayDateStr();
 
         const payload = JSON.stringify({
             board: data.board,
@@ -5919,7 +6038,8 @@ const DailyChallengeSystem = {
             p2Count: data.p2Count,
             dailyId: puzzle.id,
             todayStr: todayStr,
-            title: puzzle.title
+            title: puzzle.title,
+            difficulty: this.selectedDifficulty
         });
 
         localStorage.setItem('damma-challenge-board', payload);
@@ -5927,7 +6047,8 @@ const DailyChallengeSystem = {
         localStorage.setItem('damma-active-daily-meta', JSON.stringify({
             dailyId: puzzle.id,
             todayStr: todayStr,
-            title: puzzle.title
+            title: puzzle.title,
+            difficulty: this.selectedDifficulty
         }));
 
         if (gameStateManager.activeGameInstance) {
@@ -5946,12 +6067,23 @@ const DailyChallengeSystem = {
         SoundSystem.play('king');
     },
 
-    showSuccessModal(dailyMeta) {
+    showSuccessModal(dailyMeta, moves, timeMs) {
         const modal = document.getElementById('daily-solved-modal');
         const pName = document.getElementById('daily-solved-puzzle-name');
-        if (pName && dailyMeta && dailyMeta.title) {
-            pName.textContent = dailyMeta.title;
+        const streakVal = document.getElementById('daily-solved-streak-val');
+
+        const diff = (dailyMeta && dailyMeta.difficulty) || this.selectedDifficulty;
+        const puzzle = this.getCurrentPuzzle(diff);
+
+        const streakData = this.recordCompletion(puzzle, diff, moves, timeMs);
+
+        if (pName) {
+            pName.textContent = (dailyMeta && dailyMeta.title) || puzzle.title;
         }
+        if (streakVal) {
+            streakVal.textContent = `🔥 ${streakData.currentStreak} DAY${streakData.currentStreak === 1 ? '' : 'S'}`;
+        }
+
         if (modal) {
             modal.classList.add('active');
             SoundSystem.play('win');

@@ -5692,6 +5692,92 @@ input:checked + .red-slider:before {
     }
 }
 
+/* ==========================================================================
+   ⏱️ ONLINE MULTIPLAYER MOVE TIMER STYLES
+   ========================================================================== */
+.player-timer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 800;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: #a78bfa;
+    transition: all 0.25s ease;
+    box-sizing: border-box;
+}
+
+.player-timer-badge.active-timer {
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+
+.player-timer-badge.timer-green {
+    border-color: #10b981;
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.15);
+}
+
+.player-timer-badge.timer-yellow {
+    border-color: #f59e0b;
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.15);
+}
+
+.player-timer-badge.timer-red {
+    border-color: #ef4444;
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.player-timer-badge.timer-pulse {
+    animation: timerPulse 0.5s infinite alternate ease-in-out;
+}
+
+@keyframes timerPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+    }
+    100% {
+        transform: scale(1.08);
+        box-shadow: 0 0 18px rgba(239, 68, 68, 0.9);
+    }
+}
+
+/* ⏱️ TIME CONTROL SELECTION PILLS */
+.tc-btn {
+    flex: 1;
+    min-width: 60px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.tc-btn:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: #3b82f6;
+    color: #ffffff;
+}
+
+.tc-btn.active {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    border-color: #60a5fa;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
 
 
 
