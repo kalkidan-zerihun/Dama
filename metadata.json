@@ -1,0 +1,6 @@
+{
+  "name": "Ethiopian Damma",
+  "description": "An Ethiopian Draughts (Damma) game with single player AI, local 2-player pass-and-play, tactical puzzles, custom board themes, sound effects, and multi-language support (Amharic and English).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
