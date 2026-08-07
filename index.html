@@ -4,20 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Damma</title>
-    <!-- Cinzel for premium traditional headings and Lora/Inter for elegant warm typography -->
+    <!-- Preconnect & Preload Critical Assets for LCP < 1.0s -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="./assets/image/logo.jpg" as="image" type="image/jpeg">
+    <!-- Cinzel for premium traditional headings and Lora/Inter for elegant warm typography with font-display: swap -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <!-- ======================== -->
-    <!-- 🎬 SPLASH SCREEN         -->
+    <!-- 🎬 SPLASH SCREEN (OPTIONAL / INACTIVE FOR INSTANT MAIN MENU) -->
     <!-- ======================== -->
-    <div id="splash-screen" class="screen active">
+    <div id="splash-screen" class="screen">
         <div class="splash-container">
             <h1 class="splash-title">AXUMIT STUDIOS</h1>
             <div class="splash-emblem-container">
-                <img src="./assets/image/logo.png" alt="AXUMIT STUDIOS Logo" class="splash-emblem-img" />
+                <img src="./assets/image/logo.jpg" alt="AXUMIT STUDIOS Logo" class="splash-emblem-img" decoding="async" fetchpriority="high" />
             </div>
             <div class="splash-loader">
                 <div class="loader-bar"></div>
@@ -26,9 +30,9 @@
     </div>
 
     <!-- ======================== -->
-    <!-- 🏠 PREMIUM CINEMATIC MAIN MENU -->
+    <!-- 🏠 PREMIUM CINEMATIC MAIN MENU (ACTIVE BY DEFAULT FOR INSTANT RENDER) -->
     <!-- ======================== -->
-    <div id="main-menu" class="screen cinematic-menu-screen">
+    <div id="main-menu" class="screen cinematic-menu-screen active">
         <!-- Cinematic Parallax Background Layer -->
         <div class="cinematic-bg-container" id="menu-parallax-bg">
             <div class="fog-overlay"></div>

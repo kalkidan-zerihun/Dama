@@ -11,8 +11,17 @@ window.addEventListener('error', (e) => {
 
 import en from './translations/en.js';
 import am from './translations/am.js';
-import { initOnlineUI, getCurrentOnlineRoomId } from './src/online/onlineUI.js';
-import { sendOnlineMove } from './src/online/roomService.js';
+
+function getCurrentOnlineRoomId() {
+    return window.getCurrentOnlineRoomId ? window.getCurrentOnlineRoomId() : null;
+}
+function sendOnlineMove(...args) {
+    if (window.sendOnlineMove) {
+        window.sendOnlineMove(...args);
+    } else {
+        import('./src/online/roomService.js').then(mod => mod.sendOnlineMove(...args));
+    }
+}
 
 const translations = { en, am };
 
@@ -938,7 +947,7 @@ window.gameStateManager = gameStateManager;
 // ========================
 // 🎬 SPLASH SCREEN TIMEOUT
 // ========================
-function initializeGameApp() {
+function initCoreGameAppEngine() {
     try {
         // Bootstrap localization schemas
         bootstrapLocalization();
@@ -1157,7 +1166,7 @@ function initializeGameApp() {
         }
 
         // Initialize comprehensive system settings bindings
-        setupSettingsPanel();
+        bindGameSettingsPanel();
 
         // Initialize Tutorial Manager, Daily Challenge, and Pause Manager Systems
         if (typeof TutorialManager !== 'undefined') TutorialManager.init();
@@ -6327,7 +6336,7 @@ function loadAllSettingsIntoUI() {
     }
 }
 
-function setupSettingsPanel() {
+function bindGameSettingsPanel() {
     // 1. MODAL VISIBILITY TRIGGERS
     const modal = document.getElementById('settings-modal');
     const openBtnMenu = document.getElementById('settings-toggle-btn');
@@ -6935,9 +6944,63 @@ function setupSettingsPanel() {
         });
     }
 
-    // INITIAL RUN: Populate configuration and Online UI
-    loadAllSettingsIntoUI();
-    initOnlineUI();
+    // INITIAL RUN: Populate configuration during idle time
+    if (typeof requestIdleCallback === 'function') {
+        requestIdleCallback(() => {
+            loadAllSettingsIntoUI();
+        });
+    } else {
+        setTimeout(() => {
+            loadAllSettingsIntoUI();
+        }, 100);
+    }
+}
+
+function initializeGameApp() {
+    initCoreGameAppEngine();
+    bindGameSettingsPanel();
+
+    // 1. Instantly display Main Menu
+    const mainMenu = document.getElementById('main-menu');
+    const splash = document.getElementById('splash-screen');
+    if (splash) splash.classList.remove('active');
+    if (mainMenu) mainMenu.classList.add('active');
+
+    // 2. Bind Lazy Module Triggers on Main Menu
+    const playOnlineBtn = document.getElementById('menu-play-online-btn');
+    if (playOnlineBtn) {
+        playOnlineBtn.addEventListener('click', () => {
+            import('./src/modules/onlineMultiplayer.js').then(mod => mod.initOnlineMultiplayerModule());
+        });
+    }
+
+    const dailyBtn = document.getElementById('menu-daily-challenge-btn');
+    if (dailyBtn) {
+        dailyBtn.addEventListener('click', () => {
+            import('./src/modules/dailyChallenge.js').then(mod => mod.initDailyChallengeModule());
+        });
+    }
+
+    const tutorialBtn = document.getElementById('menu-how-to-play-btn');
+    if (tutorialBtn) {
+        tutorialBtn.addEventListener('click', () => {
+            import('./src/modules/tutorial.js').then(mod => mod.initTutorialModule());
+        });
+    }
+
+    const statsBtn = document.getElementById('menu-statistics-btn');
+    if (statsBtn) {
+        statsBtn.addEventListener('click', () => {
+            import('./src/modules/matchHistory.js').then(mod => mod.initMatchHistoryModule());
+        });
+    }
+
+    const aboutBtn = document.getElementById('menu-about-btn');
+    if (aboutBtn) {
+        aboutBtn.addEventListener('click', () => {
+            import('./src/modules/about.js').then(mod => mod.initAboutModule());
+        });
+    }
 }
 
 // ==========================================================================
